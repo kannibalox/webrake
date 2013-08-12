@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>WebRake</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="{{ url_for('static', filename='js/jquery-1.9.1.min.js') }}"></script>
+  </head>
+  <body>
+    <div id="header">
+      <h1 class="logo"><a href="/">WebRake</a></h1></br>
+      <ul>
+	<li><a href="/">Queue</a></li> | 
+	<li><a href="/start">New Encode</a></li>
+      </ul>
+    </div>
+    <div class="container">
+      {% block content %}
+      {% endblock %}
+    </div>
+    {% block script %}
+    {% endblock %}
+  </body>
+</html>

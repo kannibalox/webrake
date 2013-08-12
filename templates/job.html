@@ -1,0 +1,18 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="page_content">
+  <h2>Job {{ job.id }} - {{ job.status }}</h2>
+  <table>
+  <tr><th>Argument</th><th>Value</th></tr>
+  {% for a in job.args %}
+  <tr><td>{{ a }}</td><td>{{ job.args[a] }}</td></tr>
+  {% endfor %}
+  </table>
+  {% for o in output %}
+  <a href="{{ url_for('static', filename=o[7:]) }}">Download</a></br>
+  {% endfor %}
+  {% for i in images %}
+  <img src="{{ url_for('static', filename=i[7:]) }}"/>
+  {% endfor %} 
+</div>
+{% endblock %}

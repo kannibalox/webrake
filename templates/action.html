@@ -1,0 +1,12 @@
+{% extends "layout.html" %}
+{% block content %}
+  <div class="page_content">
+    <h2>Actions</h2>
+    <table>
+    <tr><th>Request</th><th>Item ID</th><th>Arguments</td></tr>
+{% for action in actions %}
+    <tr><td>{{ action.request }}</td><td>{{ action.itemID }}</td><td>{{  action.arguments  }}</td></tr>
+{% endfor %}
+    </table>
+  </div>
+{% endblock %}

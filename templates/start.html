@@ -1,0 +1,40 @@
+{% extends "layout.html" %}
+{% block content %}
+  <div class="page_content">
+    <h2>Start New</h2>
+    <form id="argForm" action="/launch" method="post">
+    <table>
+    <tr><td>Input:</td><td><input type="text" id="Input" name="Input"></td></tr>
+    <tr><td>Output:</td><td><input type="text" id="Output" name="Output"></td></tr>
+    <tr><td>Crop:</td><td></td></tr>
+    <tr><td class="right">Top</td><td><input type="text" size="3" id="CropTop" name="Crop"/></td></tr>
+    <tr><td class="right">Bottom</td><td><input type="text" size="3" id="CropBottom" name="Crop"/></td></tr>
+    <tr><td class="right">Left</td><td><input type="text" size="3" id="CropLeft" name="Crop"/></td></tr>
+    <tr><td class="right">Right</td><td><input type="text" size="3" id="CropRight" name="Crop"/></td></tr>
+    <tr><td>Quality (CRF):</td><td><input type="text" id="Quality" name="Quality"></td></tr>
+    <tr><td>Audio Channels:</td><td><input type="text" id="AudioUse" name="AudioUse"></td></tr>
+    <tr><td>Audio Transfer Method:</td><td><input type="Text" id="AudioEncode" name="AudioEncode"/></td></tr>
+    <tr><td>Include chapters:</td><td><input type="checkbox" id="IncludeChapters" name="IncludeChapters"></td></tr>
+    <tr><td>Other Parameters:</td><td><input type="text" id="Params" name="Params"></td></tr>
+    </table>
+    <input type="submit" value="Start Encode" />
+    <button onClick="save_args()" type="button">Preview</button></br>
+    </form>
+  </div>
+{% endblock %}
+{% block script %}
+<script type="text/javascript">
+var copyJobID = {{ copyJob }};
+$.getJSON('job/' + copyJobID + '/json', function(data) {
+  $.each(data['args'], function(arg, val) {
+    $('#' + arg).val(val);
+  });
+  if ('Crop' in data['args']) {
+    $('#CropTop').val(data['args']['Crop'][0]);
+    $('#CropBottom').val(data['args']['Crop'][1]);
+    $('#CropLeft').val(data['args']['Crop'][2]);
+    $('#CropRight').val(data['args']['Crop'][3]);
+  }
+});
+</script>
+{% endblock %}
