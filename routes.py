@@ -55,7 +55,7 @@ def jobShow(job_id):
 @app.route('/job/<int:job_id>/json')
 def jobJSON(job_id):
   if job_id == 0:
-    hbo = HandBrakeOptions()
+    hbo = HandBakeCLI.HandBrakeOptions()
     hbo.setDefaults()
     return hbo.toJSON()
   jobInfo = db.query_db('SELECT * FROM job WHERE ID=(?)', (job_id,), True)

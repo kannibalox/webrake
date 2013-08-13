@@ -107,6 +107,7 @@ class HandBrakeCLI:
     def encode(self):
         print ' '.join(self.Options.toArgArray())
         sp = subprocess.Popen([self.HandBrakePath] + self.Options.toArgArray(), stdout= subprocess.PIPE, stderr= subprocess.PIPE)
+        return sp
         print("Opening HandBrake thread")
         # HandBrake doesn't output newlines until finished, so real-time output reading is quite an excercise
         fcntl.fcntl(sp.stdout.fileno(), fcntl.F_SETFL,  fcntl.fcntl(sp.stdout.fileno(), fcntl.F_GETFL) | os.O_NONBLOCK)

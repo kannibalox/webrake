@@ -3,11 +3,12 @@
   <div class="page_content">
     <h2>Jobs</h2>
     <table id="queue">
-    <tr><th>#</td><th>Status</th><th>Output</th><th>Details</th><th>Copy</th></tr>
+    <tr><th>#</td><th>Status</th><th>Input</th><th>Output</th><th>Details</th><th>Copy</th></tr>
     {% for j in jobs %}
     <tr class="{{ loop.cycle('odd', 'even') }}">
       <td>{{ j.id }}</td>
       <td>{{ j.status }}</td>
+      <td>{{ j.Input }}</td>
       <td>{{ j.Output }}</td>
       <td><a href="{{ url_for('jobShow', job_id=j.id) }}"><img src="{{ url_for('static', filename='images/icons/magnifier.png') }}"/></a></td>
       <td><a href="{{ url_for('new') }}?copy={{ j.id }}"><img src="{{ url_for('static', filename='images/icons/bullet_go.png') }}"/></a></td>
