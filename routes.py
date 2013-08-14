@@ -1,5 +1,6 @@
 from flask import Flask, render_template, flash, Response, request, redirect, url_for, jsonify
-from Globals import Log, Manager, db
+import Globals
+import Jobs
 import HandBrakeCLI
 from time import sleep
 import simplejson, json
@@ -9,7 +10,7 @@ app = Flask(__name__)
 @app.route('/')
 @app.route('/queue')
 def home():
-  items = db.query_db('select * from job order by id desc')
+  items = Globals.db.query_db('select * from job order by id desc')
   for i in items:
     args = json.loads(i['arguments'])
     for attr in args:
@@ -34,12 +35,12 @@ def launch():
   for key in arguments:
     setattr(h.Options, key, arguments[key])
   h.Options.isPreview = True
-  Manager.addJob(h)
+  Jobs.Manager.addJob(h)
   return redirect(url_for('home'))
 
 @app.route('/job/<int:job_id>')
 def jobShow(job_id):
-  jobInfo = db.query_db('SELECT * FROM job WHERE ID=(?)', (job_id,), True)
+  jobInfo = Globals.db.query_db('SELECT * FROM job WHERE ID=(?)', (job_id,), True)
   job = {}
   job['args'] = json.loads(jobInfo['arguments'])
   for argument in job['args'].keys():
@@ -54,23 +55,25 @@ def jobShow(job_id):
 
 @app.route('/job/<int:job_id>/json')
 def jobJSON(job_id):
-  if job_id == 0:
-    hbo = HandBakeCLI.HandBrakeOptions()
-    hbo.setDefaults()
-    return hbo.toJSON()
-  jobInfo = db.query_db('SELECT * FROM job WHERE ID=(?)', (job_id,), True)
   job = {}
-  job['args'] = json.loads(jobInfo['arguments'])
+  if job_id == 0:
+    hbo = HandBrakeCLI.HandBrakeOptions()
+    hbo.setDefaults()
+    job['args'] = hbo.__dict__
+  else:
+    jobInfo = Globals.db.query_db('SELECT * FROM job WHERE ID=(?)', (job_id,), True)
+    job = {}
+    job['args'] = json.loads(jobInfo['arguments'])
+    job['status'] = jobInfo['status']
+    static_dir = 'static/jobs/' + str(job_id)
+    images = glob.glob(static_dir + '/*.png');
+    job['images'] = images
+    output = glob.glob(static_dir + '/*.mkv');
+    job['output'] = output
   for argument in job['args'].keys():
     if job['args'][argument] is None or not job['args'][argument]:
       del job['args'][argument]
   job['id'] = job_id
-  job['status'] = jobInfo['status']
-  static_dir = 'static/jobs/' + str(job_id)
-  images = glob.glob(static_dir + '/*.png');
-  job['images'] = images
-  output = glob.glob(static_dir + '/*.mkv');
-  job['output'] = output
   return jsonify(job)
   
 

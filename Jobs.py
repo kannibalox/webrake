@@ -34,7 +34,7 @@ class Job:
         timeStop = time.time()
         timeDelta = timeStop - timeStart
         timeDeltaStr = "%ih%im%is" % (round(timeDelta/(60*60)), round((timeDelta-60)/60), timeDelta%60)
-        self.setStatus('Finished in %s' % timeDeltaStr)
+        self.setStatus('Finished: %s' % timeDeltaStr)
         Globals.Log.debug("Encoded file in %f seconds" % (timeStop - timeStart))
 
     def setStatus(self, status):
@@ -56,7 +56,7 @@ class Job:
                 ETAnow = str(chunk[(chunk.find("ETA")+4):(chunk.find("ETA")+13)])
                 if not ETAnow == ETA:
                     ETA = ETAnow
-                    self.setStatus('Encoding: ETA %s' % ETA)
+                    self.setStatus('Encoding: %s' % ETA)
 
 
     def finish(self):
@@ -91,3 +91,9 @@ class JobManager:
             runningJob = self.jobQueue.get()
             self.runningJob = runningJob
             runningJob.run()
+
+def startManager():
+    global Manager
+    Manager = JobManager()
+    multiprocessing.Process(target=Manager.workQueue).start()
+

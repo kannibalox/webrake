@@ -24,7 +24,7 @@ class HandBrakeOptions:
         self.IncludeChapters = ""
         self.Duration = []
         self.AddtlOpts = []
-        self.Preview = None
+        self.isPreview = None
         self.x264Preset = ""
         self.x264Tune = ""
 

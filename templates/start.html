@@ -13,7 +13,8 @@
     <tr><td class="right">Right</td><td><input type="text" size="3" id="CropRight" name="Crop"/></td></tr>
     <tr><td>Quality (CRF):</td><td><input type="text" id="Quality" name="Quality"></td></tr>
     <tr><td>Audio Channels:</td><td><input type="text" id="AudioUse" name="AudioUse"></td></tr>
-    <tr><td>Audio Transfer Method:</td><td><input type="Text" id="AudioEncode" name="AudioEncode"/></td></tr>
+    <tr><td>Audio Transfer Method:</td><td><input type="Text" id="AudioEncoder" name="AudioEncoder"/></td></tr>
+    <tr><td>Preview (short duration):</td><td><input type="checkbox" id="isPreview" name="isPreview"></td></tr>
     <tr><td>Include chapters:</td><td><input type="checkbox" id="IncludeChapters" name="IncludeChapters"></td></tr>
     <tr><td>Other Parameters:</td><td><input type="text" id="Params" name="Params"></td></tr>
     </table>
@@ -27,7 +28,12 @@
 var copyJobID = {{ copyJob }};
 $.getJSON('job/' + copyJobID + '/json', function(data) {
   $.each(data['args'], function(arg, val) {
-    $('#' + arg).val(val);
+    elem = $('#' + arg);
+    if (elem.is(':checkbox')) {
+      elem.attr('checked', arg);
+    } else {
+      elem.val(val);
+    }
   });
   if ('Crop' in data['args']) {
     $('#CropTop').val(data['args']['Crop'][0]);

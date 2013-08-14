@@ -1,9 +1,11 @@
-from Config import conf
+import Config
 import multiprocessing
-import Jobs
 import logging
 import sqlite3
 import os
+
+Log = None
+db = None
 
 class Database:
     def __init__(self, dbFile):
@@ -30,24 +32,39 @@ class Database:
     def conn(self):
         return sqlite3.connect(self.dbFile)
 
+# Wrapper class for the python logger
+class Logger:
+    def __init__(self):
+        self.Log = logging.getLogger("WebRake")
+        self.Log.setLevel(logging.DEBUG)
+        ch = logging.StreamHandler()
+        format = logging.Formatter ( "[%(asctime)s] %(levelname)-8s %(message)s", "%Y-%m-%d %H:%M:%S" )
+        ch.setFormatter( format )
+        ch.setLevel(logging.DEBUG)
+        self.Log.addHandler(ch)
+        self.Log.debug("Stdout log handler initialized")
 
-def initializeLogger():
-    Log = logging.getLogger("WebRake")
-    Log.setLevel(logging.DEBUG)
-    ch = logging.StreamHandler()
-    format = logging.Formatter ( "[%(asctime)s] %(levelname)-8s %(message)s", "%Y-%m-%d %H:%M:%S" )
-    ch.setFormatter( format )
-    ch.setLevel(logging.DEBUG)
-    Log.addHandler(ch)
-    Log.debug("Stdout log handler initialized")
-    return Log
+    def debug(self, message):
+        self.Log.debug(message)
 
+    def info(self, message):
+        self.Log.info(message)
+        
+    def error(self, message):
+        self.Log.error(message)
 
+    def warning(self, message):
+        self.Log.warning(message)
+        
 
-Log = initializeLogger()
+def init():
+    global Config
+    global Log
+    global db
 
-db = Database(conf.get('Main','DB'))
-db.init_db()
+    Config.loadSettings()
+    
+    Log = Logger()
 
-Manager = Jobs.JobManager()
-multiprocessing.Process(target=Manager.workQueue).start()
+    db = Database(Config.Database)
+    db.init_db()
