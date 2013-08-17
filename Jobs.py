@@ -26,7 +26,6 @@ class Job:
 
     def run(self):
         try:
-            raise NameError("This should be caught")
             self.savedPath = os.getcwd()
             outPath = "static/jobs/" + str(self.id) + "/"
             if not os.path.exists(outPath):
