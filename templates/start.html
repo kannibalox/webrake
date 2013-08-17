@@ -6,6 +6,11 @@
     <table>
     <tr><td>Input:</td><td><input type="text" id="Input" name="Input"></td></tr>
     <tr><td>Output:</td><td><input type="text" id="Output" name="Output"></td></tr>
+    <tr><td>Frame Rate:</td><td><select id="FrameRate" name="FrameRate">
+        <option value="23.976">23.976</option>
+        <option value="25">25</option>
+        <option value="29.97">29.97</option>
+	</select></td><tr>
     <tr><td>Crop:</td><td></td></tr>
     <tr><td class="right">Top</td><td><input type="text" size="3" id="CropTop" name="Crop"/></td></tr>
     <tr><td class="right">Bottom</td><td><input type="text" size="3" id="CropBottom" name="Crop"/></td></tr>
@@ -16,6 +21,8 @@
     <tr><td>Audio Transfer Method:</td><td><input type="Text" id="AudioEncoder" name="AudioEncoder"/></td></tr>
     <tr><td>Preview (short duration):</td><td><input type="checkbox" id="isPreview" name="isPreview"></td></tr>
     <tr><td>Include chapters:</td><td><input type="checkbox" id="IncludeChapters" name="IncludeChapters"></td></tr>
+    <tr><td>Deinterlace:</td><td><input type="checkbox" id="Deinterlace" name="Deinterlace"></td></tr>
+    <tr><td>Detelecine:</td><td><input type="checkbox" id="Detelecine" name="Detelecine"></td></tr>
     <tr><td>Other Parameters:</td><td><input type="text" id="Params" name="Params"></td></tr>
     </table>
     <input type="submit" value="Start Encode" />

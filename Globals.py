@@ -9,7 +9,7 @@ db = None
 
 class Database:
     def __init__(self, dbFile):
-        self.dbFile = dbFile
+        self.dbFile = os.path.abspath(dbFile)
 
     def init_db(self):
         try:

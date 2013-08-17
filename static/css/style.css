@@ -41,18 +41,24 @@ body {
 
 #queue {
   border-collapse: collapse;
+  margin-left:auto;
+  margin-right:auto;
 }
 
-.right {
- float: right;
+#queue td, th {
+  padding: 3px;
 }
 
-td {
- border: 3px;
+#queue th {
+  background-color: #acac79;
 }
 
 #queue tr.odd {
   background-color: #bcbc89;
+}
+
+.right {
+ float: right;
 }
 
 #header h1.logo:hover {

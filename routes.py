@@ -29,6 +29,9 @@ def launch():
   h = HandBrakeCLI.HandBrakeCLI()
   h.Options.setDefaults()
   arguments = dict(request.form)
+  # The only way to iron out a minor bug
+  if arguments['Crop'] == [u'', u'', u'', u'']:
+    del(arguments['Crop'])
   for key in arguments.keys():
     if len(arguments[key]) == 1:
       arguments[key] = arguments[key][0]

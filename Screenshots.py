@@ -35,9 +35,8 @@ class Screenshots:
             self.takeScreenshot(i)
             try:
                 os.rename('00000001.png', 'Preview%d.png' % i)
-                shutil.move('Preview%d.png' % i, self.outDir)
             except OSError:
-                Globals.Log.info("Could not find screenshot at interval %i" % i)
+                Globals.Log.info("Could not generate screenshot at interval %d" % i)
 
 if __name__ == "__main__":
     s = Screenshots(9)

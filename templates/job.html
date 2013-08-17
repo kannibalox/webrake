@@ -10,7 +10,7 @@
   {% endfor %}
   </table>
   {% for o in output %}
-  <a href="{{ url_for('static', filename=o[7:]) }}">Download</a></br>
+  <a href="{{ url_for('static', filename=o[7:]) }}">{{ o }}</a></br>
   {% endfor %}
   {% for i in images %}
   <img src="{{ url_for('static', filename=i[7:]) }}"/>

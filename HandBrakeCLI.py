@@ -4,6 +4,7 @@ import select
 import os
 import time
 import simplejson, json
+import re
 
 class HandBrakeOptions:
     MAIN_FEATURE = "--main-feature"
@@ -25,6 +26,8 @@ class HandBrakeOptions:
         self.Duration = []
         self.AddtlOpts = []
         self.isPreview = None
+        self.Detelecine = None
+        self.Deinterlace = None
         self.x264Preset = ""
         self.x264Tune = ""
 
@@ -58,6 +61,10 @@ class HandBrakeOptions:
             retArray += ['-o', self.Output]
         if self.Crop:
             retArray += ['--crop', ':'.join(self.Crop)]
+        if self.Detelecine:
+            retArray += ['--detelecine']
+        if self.Deinterlace:
+            retArray += ['--deinterlace']
         if self.IncludeChapters:
             retArray += ['-m']
         if self.AudioUse:
@@ -99,13 +106,13 @@ class HandBrakeCLI:
         self.Test = 5
         self.Options = HandBrakeOptions()
         self.ETA = ""
+        self.autoCrop = []
         
-    def scan(self, scanPath):
-        scanString = subprocess.Popen([self.HandBrakePath, "--main-feature", "-i", scanPath, "-t", "0", "-v", "0"], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()[1]
-        return scanString
+    def scan(self):
+        scanStrings = subprocess.Popen([self.HandBrakePath, "--main-feature", "-i", self.Options.Input, "-t", "0", "-v", "0"], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+        return scanStrings
 
     def encode(self):
-        print ' '.join(self.Options.toArgArray())
         sp = subprocess.Popen([self.HandBrakePath] + self.Options.toArgArray(), stdout= subprocess.PIPE, stderr= subprocess.PIPE)
         return sp
         print("Opening HandBrake thread")
