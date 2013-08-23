@@ -130,7 +130,6 @@ class Daemon:
 class WebRakeDaemon(Daemon):
     def run(self):
         WebRake.run()
-        print "done run"
 
 if __name__ == "__main__":
     daemon = WebRakeDaemon('/tmp/daemon-example.pid')

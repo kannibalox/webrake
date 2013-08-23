@@ -39,38 +39,38 @@ def launch():
       arguments[key] = arguments[key][0]
   for key in arguments:
     setattr(hbo, key, arguments[key])
-  Jobs.Manager.addJob(hbo)
+  Jobs.Manager.action("add", hbo)
   return redirect(url_for('home'))
 
-@app.route('/job/<int:job_id>')
-def jobShow(job_id):
-  jobInfo = Globals.db.query('SELECT * FROM job WHERE ID=(?)', (job_id,), True)
+@app.route('/job/<int:jobID>')
+def jobShow(jobID):
+  jobInfo = Globals.db.query('SELECT * FROM job WHERE ID=(?)', (jobID,), True)
   job = {}
   job['args'] = json.loads(jobInfo['arguments'])
   for argument in job['args'].keys():
     if job['args'][argument] is None or not job['args'][argument]:
       del job['args'][argument]
-  job['id'] = job_id
+  job['id'] = jobID
   job['status'] = jobInfo['status']
-  static_dir = 'static/jobs/' + str(job_id)
+  static_dir = 'static/jobs/' + str(jobID)
   images = glob.glob(static_dir + '/*.png');
   output = glob.glob(static_dir + '/*.mkv');
   return render_template('job.html', images=images, output=output, job=job)
 
-@app.route('/job/<int:job_id>/json')
-def jobJSON(job_id):
+@app.route('/job/<int:jobID>/json')
+def jobJSON(jobID):
   job = {}
-  if job_id == 0:
+  if jobID == 0:
     # Zero gets the default
     hbo = HandBrakeCLI.HandBrakeOptions()
     hbo.setDefaults()
     job['args'] = hbo.__dict__
   else:
-    jobInfo = Globals.db.query('SELECT * FROM job WHERE ID=(?)', (job_id,), True)
+    jobInfo = Globals.db.query('SELECT * FROM job WHERE ID=(?)', (jobID,), True)
     job = {}
     job['args'] = json.loads(jobInfo['arguments'])
     job['status'] = jobInfo['status']
-    static_dir = 'static/jobs/' + str(job_id)
+    static_dir = 'static/jobs/' + str(jobID)
     images = glob.glob(static_dir + '/*.png');
     job['images'] = images
     output = glob.glob(static_dir + '/*.mkv');
@@ -78,12 +78,12 @@ def jobJSON(job_id):
   for argument in job['args'].keys():
     if job['args'][argument] is None or not job['args'][argument]:
       del job['args'][argument]
-  job['id'] = job_id
+  job['id'] = jobID
   return jsonify(job)
 
-@app.route('/kill')
-def kill():
-  Jobs.Manager.actionQueue.put("interrupt")
+@app.route('/stop/<int:jobID>')
+def stopJob(jobID):
+  Jobs.Manager.action("stop", jobID)
   return "uhh"
   
 @app.route('/shutdown', methods=['POST'])

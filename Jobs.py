@@ -18,18 +18,27 @@ class Job:
         self.hb = HandBrakeCLI.HandBrakeCLI()
         if handbrakeoptions:
             self.hb.Options = handbrakeoptions
-        self.id = None
-        conn = Globals.db.conn()
-        cur = conn.cursor()
-        cur.execute("INSERT INTO job(status, arguments) VALUES('Queued', (?))", (self.hb.Options.toJSON(),))
-        self.id = cur.lastrowid
-        conn.commit()
-        conn.close()
-        Globals.Log.debug("Added job " + str(self.id))
+            self.id = None
+            conn = Globals.db.conn()
+            cur = conn.cursor()
+            cur.execute("INSERT INTO job(status, arguments) VALUES('Queued', (?))", (self.hb.Options.toJSON(),))
+            self.id = cur.lastrowid
+            conn.commit()
+            conn.close()
+            Globals.Log.debug("Added job " + str(self.id))
+
+    def load(self, jobID):
+        self.id = jobID
+        r = Globals.db.query("SELECT arguments FROM job where ID = (?)",(self.id,),True)
+        if r['arguments']:
+            self.hb.Options.setDefaults()
+            self.hb.Options.fromJSON(r['arguments'])
 
     def run(self):
+        if not Globals.db.query("SELECT status FROM job where ID = (?)",(self.id,),True):
+            Globals.Log.debug("Could not find ID %s in database, will not run" % self.id)
         timeStart = time.time()
-        self.savedPath = os.getcwd()
+        savedPath = os.getcwd()
         outPath = "static/jobs/" + str(self.id) + "/"
         if not os.path.exists(outPath):
             os.mkdir(outPath)
@@ -54,7 +63,7 @@ class Job:
             self.setStatus('Failed')
         finally:
             self.jobLog = None
-            os.chdir(self.savedPath)            
+            os.chdir(savedPath)
 
     def setStatus(self, status):
         conn = Globals.db.conn()
@@ -104,21 +113,18 @@ class JobManager(multiprocessing.Process):
         multiprocessing.Process.__init__(self)
         self.runningJob = None
         self.actionQueue = multiprocessing.Queue()
-        self.jobQueue = multiprocessing.Queue()
+        self.jobQueue = []
         self.die = False
 
-    def addJob(self, handbrakeoptions):
-        newJob = Job(handbrakeoptions)
-        self.jobQueue.put(newJob)
-        self.actionQueue.put("runJobs")
-    
-    def removeJob(self, jID):
+    def removeJob(self, jobID):
         pass
 
-    def startJob(self, jID):
-        if self.runningJob:
-            Globals.Log.warning("Tried to start two jobs at the same time!")
-            return
+    def startJob(self, jobID):
+        job = Job()
+        job.load(jobID)
+        job.run()
+        self.runningJob = None
+        
         pass
 
     def purgeJob(self, jID):
@@ -130,6 +136,8 @@ class JobManager(multiprocessing.Process):
             return "Terminated"
         return "Not running %s" % self.runningJob
         
+    def action(self, action, args=None):
+        self.actionQueue.put((action,args))
 
     def run(self):
         self.workQueue()
@@ -141,18 +149,30 @@ class JobManager(multiprocessing.Process):
         Globals.Log.info("Started action queue worker")
         while not self.die:
             action = self.actionQueue.get()
-            if action == "runJobs":
-                job = self.jobQueue.get()
-                self.runningJob = multiprocessing.Process(target=job.run)
-                self.runningJob.start()
-            elif action == "die":
-                self.die = True
-            elif action == "interrupt":
+            if action[0] == "runJobs":
+                if self.runningJob is None:
+                    jobID = self.jobQueue.pop(0)
+                    job = Job()
+                    job.load(jobID)
+                    self.runningJob = multiprocessing.Process(target=self.startJob,args=(jobID,))
+                    self.runningJob.start()
+                else:
+                    Globals.Log.debug("A job (%s) is already running: not starting a new thread" % self.runningJob)
+            elif action[0] == "add":
+                newJob = Job(action[1])
+                self.jobQueue.append(newJob.id)
+                self.actionQueue.put(("runJobs",))
+            elif action[0] == "interrupt":
                 print "Killing %s" % self.runningJob
                 if self.runningJob:
                     self.runningJob.terminate()
+            elif action[0] == "stop":
+                print "Removing job %i" % action[1]
+                self.removeJob(action[1])
+            elif action[0] == "die":
+                self.die = True
             else:
-                Globals.Log.debug("Action %s not recognized" % action)
+                Globals.Log.debug("Action %s not recognized" % action[0])
         Globals.Log.info("Exiting action queue worker")
 
 def startManager():
