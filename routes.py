@@ -10,7 +10,7 @@ app = Flask(__name__)
 @app.route('/')
 @app.route('/queue')
 def home():
-  items = Globals.db.query_db('select * from job order by id desc')
+  items = Globals.db.query('select * from job order by id desc')
   for i in items:
     args = json.loads(i['arguments'])
     for attr in args:
@@ -26,24 +26,25 @@ def new():
 
 @app.route('/launch', methods=['POST'])
 def launch():
-  h = HandBrakeCLI.HandBrakeCLI()
-  h.Options.setDefaults()
+  hbo = HandBrakeCLI.HandBrakeOptions()
+  hbo.setDefaults()
   arguments = dict(request.form)
   # The only way to iron out a minor bug
+  if not 'isPreview' in arguments:
+    arguments['isPreview'] = [False]
   if arguments['Crop'] == [u'', u'', u'', u'']:
     del(arguments['Crop'])
   for key in arguments.keys():
     if len(arguments[key]) == 1:
       arguments[key] = arguments[key][0]
   for key in arguments:
-    setattr(h.Options, key, arguments[key])
-  h.Options.isPreview = True
-  Jobs.Manager.addJob(h)
+    setattr(hbo, key, arguments[key])
+  Jobs.Manager.addJob(hbo)
   return redirect(url_for('home'))
 
 @app.route('/job/<int:job_id>')
 def jobShow(job_id):
-  jobInfo = Globals.db.query_db('SELECT * FROM job WHERE ID=(?)', (job_id,), True)
+  jobInfo = Globals.db.query('SELECT * FROM job WHERE ID=(?)', (job_id,), True)
   job = {}
   job['args'] = json.loads(jobInfo['arguments'])
   for argument in job['args'].keys():
@@ -60,11 +61,12 @@ def jobShow(job_id):
 def jobJSON(job_id):
   job = {}
   if job_id == 0:
+    # Zero gets the default
     hbo = HandBrakeCLI.HandBrakeOptions()
     hbo.setDefaults()
     job['args'] = hbo.__dict__
   else:
-    jobInfo = Globals.db.query_db('SELECT * FROM job WHERE ID=(?)', (job_id,), True)
+    jobInfo = Globals.db.query('SELECT * FROM job WHERE ID=(?)', (job_id,), True)
     job = {}
     job['args'] = json.loads(jobInfo['arguments'])
     job['status'] = jobInfo['status']
@@ -78,7 +80,16 @@ def jobJSON(job_id):
       del job['args'][argument]
   job['id'] = job_id
   return jsonify(job)
+
+@app.route('/kill')
+def kill():
+  Jobs.Manager.actionQueue.put("interrupt")
+  return "uhh"
   
+@app.route('/shutdown', methods=['POST'])
+def shutdown():
+  shutdown_server()
+  return 'Server shutting down...'
 
 if __name__ == '__main__':
   app.run(host='0.0.0.0', port=9000, debug=True, use_reloader=False, use_debugger=True)

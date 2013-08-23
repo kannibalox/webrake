@@ -1,6 +1,7 @@
 static/jobs/
 WebRake.cfg
 *.db
+*.log
 
 *.py[cod]
 

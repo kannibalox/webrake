@@ -10,7 +10,7 @@ class Screenshots:
         self.numScreenshots = numScreenshots
         self.ID = actionID
         self.outDir = outDir
-        self.FilePath = json.loads(Globals.db.query_db("SELECT arguments FROM job where ID = ?", (self.ID,), one=True)['arguments'])['Output']
+        self.FilePath = json.loads(Globals.db.query("SELECT arguments FROM job where ID = ?", (self.ID,), one=True)['arguments'])['Output']
 
     def takeScreenshot(self, time="10"):
         args = [ "mplayer", "-ss", str(time), "-vo", "png:z=9", "-frames", "1", "-vf", "scale=0:0", "-nosound", "-nosub", "-nolirc", self.FilePath ]

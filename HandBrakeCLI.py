@@ -42,6 +42,7 @@ class HandBrakeOptions:
         self.AudioEncoder = 'copy'
         self.IncludeChapters = True
         self.isPreview = True
+        self.x264opts = "aq-mode=2:ref=12:merange=32"
 
     def toJSON(self):
         return json.dumps(self.__dict__)
@@ -86,12 +87,12 @@ class HandBrakeOptions:
             retArray += ['-E', self.AudioEncoder]
         if self.FrameRate:
             retArray += ['-r', self.FrameRate]
-        if self.x264opts:
-            retArray += ['-x', self.x264opts]
         if self.x264Preset:
             retArray += ['--x264-preset', self.x264Preset]
         if self.x264Tune:
             retArray += ['--x264-tune', self.x264Tune]
+        if self.x264opts:
+            retArray += ['-x', self.x264opts]
         retArray += ['-e', 'x264']
         retArray += self.AddtlOpts
         return retArray
