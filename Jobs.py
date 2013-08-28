@@ -12,6 +12,7 @@ import fcntl
 import select
 import re
 import sys
+from time import sleep
 
 class Job:
     def __init__(self, handbrakeoptions=None):
@@ -108,9 +109,9 @@ class Job:
         S = Screenshots.Screenshots(self.id, outDir)
         S.takeAllPreviewScreenshots()
 
-class JobManager(multiprocessing.Process):
+class JobManager:
     def __init__(self):
-        multiprocessing.Process.__init__(self)
+        Globals.Log.debug("Initializing job manager")
         self.runningJob = None
         self.actionQueue = multiprocessing.Queue()
         self.jobQueue = []
@@ -119,13 +120,17 @@ class JobManager(multiprocessing.Process):
     def removeJob(self, jobID):
         pass
 
+    def addJob(self, HandbrakeOptions):
+        job = Job(HandbrakeOptions)
+        if self.runningJob is None or not self.runningJob.is_alive():
+            self.startJob(job.id)
+
     def startJob(self, jobID):
         job = Job()
         job.load(jobID)
-        job.run()
-        self.runningJob = None
-        
-        pass
+        p = multiprocessing.Process(target=job.run)
+        p.start()
+        self.runningJob = p
 
     def purgeJob(self, jID):
         pass
@@ -139,46 +144,6 @@ class JobManager(multiprocessing.Process):
     def action(self, action, args=None):
         self.actionQueue.put((action,args))
 
-    def run(self):
-        self.workQueue()
-
-    def kill(self):
-        self.mProcess.terminate()
-
-    def workQueue(self):
-        Globals.Log.info("Started action queue worker")
-        while not self.die:
-            action = self.actionQueue.get()
-            if action[0] == "runJobs":
-                if self.runningJob is None:
-                    jobID = self.jobQueue.pop(0)
-                    job = Job()
-                    job.load(jobID)
-                    self.runningJob = multiprocessing.Process(target=self.startJob,args=(jobID,))
-                    self.runningJob.start()
-                else:
-                    Globals.Log.debug("A job (%s) is already running: not starting a new thread" % self.runningJob)
-            elif action[0] == "add":
-                newJob = Job(action[1])
-                self.jobQueue.append(newJob.id)
-                self.actionQueue.put(("runJobs",))
-            elif action[0] == "interrupt":
-                print "Killing %s" % self.runningJob
-                if self.runningJob:
-                    self.runningJob.terminate()
-            elif action[0] == "stop":
-                print "Removing job %i" % action[1]
-                self.removeJob(action[1])
-            elif action[0] == "die":
-                self.die = True
-            else:
-                Globals.Log.debug("Action %s not recognized" % action[0])
-        Globals.Log.info("Exiting action queue worker")
-
-def startManager():
+def init():
     global Manager
     Manager = JobManager()
-    Manager.start()
-
-def stopManager():
-    Manager.terminate()

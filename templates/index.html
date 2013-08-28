@@ -3,16 +3,18 @@
   <div class="page_content">
     <h2>Jobs</h2>
     <table id="queue">
-    <tr><th>#</td><th>Status</th><th>Input</th><th>Output</th><th>Actions</th></tr>
+    <tr><th>#</td><th><input type="checkbox" id="checkall"></th><th>Status</th><th>Input</th><th>Output</th><th>Actions</th></tr>
     {% for j in jobs %}
     <tr class="{{ loop.cycle('odd', 'even') }}">
       <td>{{ j.id }}</td>
+      <td><input type="checkbox" name="check" id="check"></td>
       <td>{{ j.status }}</td>
       <td>{{ j.Input }}</td>
       <td>{{ j.Output }}</td>
       <td>
 	<a href="{{ url_for('jobShow', jobID=j.id) }}"><img alt="Details" src="{{ url_for('static', filename='images/icons/magnifier.png') }}"/></a>
 	<a href="{{ url_for('new') }}?copy={{ j.id }}"><img alt="Copy" src="{{ url_for('static', filename='images/icons/bullet_go.png') }}"/></a>
+	<a href="{{ url_for('deleteJob', jobID=j.id) }}"><img alt="Delete" src="{{ url_for('static', filename='images/icons/cross.png') }}"/></a>
       </td>
     </tr>
     {% endfor %}

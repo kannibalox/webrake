@@ -28,18 +28,21 @@ def new():
 def launch():
   hbo = HandBrakeCLI.HandBrakeOptions()
   hbo.setDefaults()
+
   arguments = dict(request.form)
-  # The only way to iron out a minor bug
+  # Iron out a few quirks
   if not 'isPreview' in arguments:
     arguments['isPreview'] = [False]
   if arguments['Crop'] == [u'', u'', u'', u'']:
     del(arguments['Crop'])
+
   for key in arguments.keys():
     if len(arguments[key]) == 1:
       arguments[key] = arguments[key][0]
   for key in arguments:
     setattr(hbo, key, arguments[key])
-  Jobs.Manager.action("add", hbo)
+
+  Jobs.Manager.addJob(hbo)
   return redirect(url_for('home'))
 
 @app.route('/job/<int:jobID>')
@@ -80,6 +83,10 @@ def jobJSON(jobID):
       del job['args'][argument]
   job['id'] = jobID
   return jsonify(job)
+
+@app.route('/delete/<int:jobID>')
+def deleteJob(jobID):
+  Jobs.Manager.action("delete", jobID)
 
 @app.route('/stop/<int:jobID>')
 def stopJob(jobID):
