@@ -15,6 +15,7 @@ def home():
     args = json.loads(i['arguments'])
     for attr in args:
       i[attr] = args[attr]
+    i['status'] = '<br />\n'.join(i['status'].split(':'))
   return render_template('index.html', jobs=items)
 
 @app.route('/start')
@@ -22,7 +23,8 @@ def new():
   copy_id = request.args.get('copy')
   if copy_id is None:
     copy_id = 0
-  return render_template('start.html', copyJob=copy_id)
+  x264Presets = "ultrafast/superfast/veryfast/faster/fast/medium/slow/slower/veryslow/placebo".split('/') # I'm a lazy bastard
+  return render_template('start.html', copyJob=copy_id, presets=x264Presets)
 
 @app.route('/launch', methods=['POST'])
 def launch():
@@ -87,6 +89,11 @@ def jobJSON(jobID):
 @app.route('/delete/<int:jobID>')
 def deleteJob(jobID):
   Jobs.Manager.action("delete", jobID)
+
+@app.route('/purge/<int:jobID>')
+def purgeJob(jobID):
+  Jobs.Manager.purgeJob(jobID)
+  return redirect(url_for('jobShow', jobID=jobID))
 
 @app.route('/stop/<int:jobID>')
 def stopJob(jobID):

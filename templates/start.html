@@ -12,6 +12,11 @@
         <option value="25">25</option>
         <option value="29.97">29.97</option>
 	</select></td><tr>
+    <tr><td>x263 Presets:</td><td><select id="x264Preset" name="x264Preset">
+	  {% for p in presets %}
+	  <option value="{{ p }}">{{ p }}</option>
+	  {% endfor %}
+    </td></tr>
     <tr><td>Crop:</td><td></td></tr>
     <tr><td class="right">Top</td><td><input type="text" size="3" id="CropTop" name="Crop"/></td></tr>
     <tr><td class="right">Bottom</td><td><input type="text" size="3" id="CropBottom" name="Crop"/></td></tr>
@@ -24,6 +29,8 @@
     <tr><td>Include chapters:</td><td><input type="checkbox" id="IncludeChapters" name="IncludeChapters"></td></tr>
     <tr><td>Deinterlace:</td><td><input type="checkbox" id="Deinterlace" name="Deinterlace"></td></tr>
     <tr><td>Detelecine:</td><td><input type="checkbox" id="Detelecine" name="Detelecine"></td></tr>
+    <tr><td>Start Duration:</td><td><input type="text" id="StartDuration" name="Duration"></td></tr>
+    <tr><td>End Duration:</td><td><input type="text" id="EndDuration" name="Duration"></td></tr>
     <tr><td>Other Parameters:</td><td><input type="text" id="Params" name="Params"></td></tr>
     </table>
     <input type="submit" value="Start Encode" />
@@ -43,6 +50,10 @@ $.getJSON('job/' + copyJobID + '/json', function(data) {
       elem.val(val);
     }
   });
+  if ('Duration' in data['args']) {
+    $('#StartDuration').val(data['args']['Duration'][0]);
+    $('#EndDuration').val(data['args']['Duration'][1]);
+  }
   if ('Crop' in data['args']) {
     $('#CropTop').val(data['args']['Crop'][0]);
     $('#CropBottom').val(data['args']['Crop'][1]);

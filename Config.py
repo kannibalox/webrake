@@ -16,6 +16,7 @@ def loadSettings():
     globals()['PreviewLength'] = conf.get('Main', 'PreviewLength')
     globals()['Database'] = conf.get('Main', 'Database')
     globals()['WebHost'] = conf.get('Main', 'WebHost')
+    globals()['SelectorRoot'] = conf.get('Main', 'SelectorRoot')
 
 def get(item):
     return getattr(Conf, item)

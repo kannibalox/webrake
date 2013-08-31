@@ -3,6 +3,7 @@ import HandBrakeCLI
 import Globals
 import Screenshots
 
+import glob
 import multiprocessing
 import time
 import logging
@@ -15,7 +16,7 @@ import sys
 from time import sleep
 
 class Job:
-    def __init__(self, handbrakeoptions=None):
+    def __init__(self, handbrakeoptions=None, jobID=None):
         self.hb = HandBrakeCLI.HandBrakeCLI()
         if handbrakeoptions:
             self.hb.Options = handbrakeoptions
@@ -27,6 +28,8 @@ class Job:
             conn.commit()
             conn.close()
             Globals.Log.debug("Added job " + str(self.id))
+        elif jobID:
+            self.load(jobID)
 
     def load(self, jobID):
         self.id = jobID
@@ -34,6 +37,10 @@ class Job:
         if r['arguments']:
             self.hb.Options.setDefaults()
             self.hb.Options.fromJSON(r['arguments'])
+
+    def is_active(self):
+        Globals.db.query("SELECT status FROM job WHERE ID = (?)",(self.id,),True)
+        pass
 
     def run(self):
         if not Globals.db.query("SELECT status FROM job where ID = (?)",(self.id,),True):
@@ -45,7 +52,7 @@ class Job:
             os.mkdir(outPath)
         os.chdir(outPath)        
         try:
-            self.jobLog = logging.getLogger("WebRake." + str(self.id))
+            self.jobLog = logging.getLogger("WebRake.Job" + str(self.id))
             self.setStatus('Initializing')
             self.prep()
             self.setStatus('Encoding')
@@ -78,7 +85,7 @@ class Job:
         r = re.compile('autocrop: (\d+)/(\d+)/(\d+)/(\d+)')
         m = r.search(stderr)
         autoCrop = [m.group(1), m.group(2), m.group(3), m.group(4)]
-        Globals.Log.debug("Autocrop scan match: " + str(autoCrop))
+        self.jobLog.debug("Autocrop scan match: " + str(autoCrop))
         if not self.hb.Options.Crop:
             self.hb.Options.Crop = autoCrop
         conn = Globals.db.conn()
@@ -112,6 +119,7 @@ class Job:
 class JobManager:
     def __init__(self):
         Globals.Log.debug("Initializing job manager")
+        self.Log = logging.getLogger("WebRake.JobManager")
         self.runningJob = None
         self.actionQueue = multiprocessing.Queue()
         self.jobQueue = []
@@ -122,18 +130,41 @@ class JobManager:
 
     def addJob(self, HandbrakeOptions):
         job = Job(HandbrakeOptions)
-        if self.runningJob is None or not self.runningJob.is_alive():
-            self.startJob(job.id)
+        jobQueue.append(job.id)
+        self.workQueue()
 
     def startJob(self, jobID):
-        job = Job()
-        job.load(jobID)
+        job = Job(jobID=jobID)
         p = multiprocessing.Process(target=job.run)
         p.start()
         self.runningJob = p
 
-    def purgeJob(self, jID):
-        pass
+    # This function is going to recurse. Ugly, but works.
+    def workQueue(self):
+        if len(jobQueue) > 0:
+            if self.runningJob is None or not self.runningJob.is_alive():
+                self.Log.debug("A current job is already running, not starting a new thread")
+                return
+            job = Job(jobID=jobQueue.pop(1))
+            p = multiprocessing.Process(target=job.run)
+            p.start()
+            self.runningJob = p
+            p.join()
+
+    def purgeJob(self, jobID):
+        self.Log.info("Purging job %i" % jobID)
+        job = Job(jobID=jobID)
+        static_dir = "static/jobs/" + str(jobID)
+        images = glob.glob(static_dir + '/*.png');
+        videos = glob.glob(static_dir + '/*.mkv');
+        if len(images) > 0:
+            del(images[0]) # Save one image
+        for i in images:
+            os.remove(i)
+        for v in videos:
+            os.remove(v)
+        return len(images) + len(videos)
+
 
     def killRunningJob(self):
         if self.runningJob:

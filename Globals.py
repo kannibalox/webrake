@@ -42,7 +42,7 @@ def init():
     Log = logging.getLogger("WebRake")
     Log.setLevel(logging.DEBUG)
     ch = logging.StreamHandler()
-    format = logging.Formatter ( "[%(asctime)s] %(levelname)-8s %(message)s", "%Y-%m-%d %H:%M:%S" )
+    format = logging.Formatter ( "[%(asctime)s] %(levelname)-8s %(name)s %(message)s", "%Y-%m-%d %H:%M:%S" )
     ch.setFormatter( format )
     ch.setLevel(logging.DEBUG)
     logFile = 'messages.log'

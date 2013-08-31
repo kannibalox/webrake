@@ -2,22 +2,41 @@
 {% block content %}
   <div class="page_content">
     <h2>Jobs</h2>
+    <center>
+    Filter:
+    <select name="jobFilter" id="jobFilter">
+      <option>Active</option>
+      <option>All</option>
+      <option>Interrupted</option>
+      <option>Inactive</option>
+      <option>Failed</option>
+    </select>
+    Action All:
+    <a href=""><img title="Details" src="{{ url_for('static', filename='images/icons/magnifier.png') }}"/></a>
+    <a href=""><img title="Copy" src="{{ url_for('static', filename='images/icons/bullet_go.png') }}"/></a>
+    <a href=""><img title="Purge" src="{{ url_for('static', filename='images/icons/bin_empty.png') }}"/></a>
+    <a href=""><img title="Delete" src="{{ url_for('static', filename='images/icons/cross.png') }}"/></a>
+    </center><br/>
+
     <table id="queue">
     <tr><th>#</td><th><input type="checkbox" id="checkall"></th><th>Status</th><th>Input</th><th>Output</th><th>Actions</th></tr>
     {% for j in jobs %}
     <tr class="{{ loop.cycle('odd', 'even') }}">
       <td>{{ j.id }}</td>
-      <td><input type="checkbox" name="check" id="check"></td>
+      <td><input type="checkbox" name="checkJob" id="checkJob"></td>
       <td>{{ j.status }}</td>
       <td>{{ j.Input }}</td>
       <td>{{ j.Output }}</td>
       <td>
-	<a href="{{ url_for('jobShow', jobID=j.id) }}"><img alt="Details" src="{{ url_for('static', filename='images/icons/magnifier.png') }}"/></a>
-	<a href="{{ url_for('new') }}?copy={{ j.id }}"><img alt="Copy" src="{{ url_for('static', filename='images/icons/bullet_go.png') }}"/></a>
-	<a href="{{ url_for('deleteJob', jobID=j.id) }}"><img alt="Delete" src="{{ url_for('static', filename='images/icons/cross.png') }}"/></a>
+	<a href="{{ url_for('jobShow', jobID=j.id) }}"><img title="Details" src="{{ url_for('static', filename='images/icons/magnifier.png') }}"/></a>
+	<a href="{{ url_for('new') }}?copy={{ j.id }}"><img title="Copy" src="{{ url_for('static', filename='images/icons/bullet_go.png') }}"/></a>
+	<a href="{{ url_for('purgeJob', jobID=j.id) }}"><img title="Purge" src="{{ url_for('static', filename='images/icons/bin_empty.png') }}"/></a>
+	<a href="{{ url_for('deleteJob', jobID=j.id) }}"><img title="Delete" src="{{ url_for('static', filename='images/icons/cross.png') }}"/></a>
       </td>
     </tr>
     {% endfor %}
     </table>
   </div>
+{% endblock %}
+{% block script %}
 {% endblock %}
