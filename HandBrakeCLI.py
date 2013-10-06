@@ -30,6 +30,7 @@ class HandBrakeOptions:
         self.Deinterlace = None
         self.x264Preset = ""
         self.x264Tune = ""
+        self.Anamorphic = ""
 
     # Set up sane x264 encoding defaults
     def setDefaults(self):
@@ -43,6 +44,7 @@ class HandBrakeOptions:
         self.IncludeChapters = True
         self.isPreview = True
         self.x264opts = "aq-mode=2:ref=12:merange=32"
+        self.Anamorphic = "strict"
 
     def toJSON(self):
         return json.dumps(self.__dict__)
@@ -87,6 +89,8 @@ class HandBrakeOptions:
             retArray += ['-E', self.AudioEncoder]
         if self.FrameRate:
             retArray += ['-r', self.FrameRate]
+        if self.Anamorphic:
+            retArray += ['--%s-anamorphic' % self.Anamorphic.lower()]
         if self.x264Preset:
             retArray += ['--x264-preset', self.x264Preset]
         if self.x264Tune:

@@ -8,10 +8,15 @@
     <tr><td>Output:</td><td><input type="text" id="Output" name="Output"></td></tr>
     <tr><td>x264 Opts.:</td><td><input type="text" id="x264opts" name="x264opts"></td></tr>
     <tr><td>Frame Rate:</td><td><select id="FrameRate" name="FrameRate">
-        <option value="23.976">23.976</option>
-        <option value="25">25</option>
-        <option value="29.97">29.97</option>
-	</select></td><tr>
+          <option value="23.976">23.976</option>
+          <option value="25">25</option>
+          <option value="29.97">29.97</option>
+          </select></td><tr>
+    <tr><td>Anamorphic</td><td><select id="Anamorphic" name="Anamorphic">
+	  <option value="Custom">Custom</option>
+	  <option value="Loose">Loose</option>
+          <option value="Strict">Strict</option>
+	  </select></td><tr>
     <tr><td>x264 Presets:</td><td><select id="x264Preset" name="x264Preset">
 	  {% for p in presets %}
 	  <option value="{{ p }}">{{ p }}</option>
