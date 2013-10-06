@@ -1,5 +1,6 @@
 static/jobs/
 WebRake.cfg
+WebRake.db
 *.db
 *.log
 

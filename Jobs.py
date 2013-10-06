@@ -118,19 +118,19 @@ class Job:
         ETA = ""
         output = ""
         while sp.poll() == None:
-            out = select.select([sp.stdout.fileno()], [], [])[0]
-            if not out:
+            outstd = select.select([sp.stdout.fileno()], [], [])[0]
+            if not outstd:
                 continue
             else:
                 chunk = sp.stdout.read()
-                output = output + chunk
                 if chunk.find("ETA") > 0:
                     ETAnow = str(chunk[(chunk.find("ETA")+4):(chunk.find("ETA")+13)])
                     if not ETAnow == ETA:
                         ETA = ETAnow
                         self.setStatus('Encoding: ETA %s' % ETA)
-        with open('encode.log', 'w'):
-            f.write(output)
+        with open('encode.log', 'w') as f:
+            for line in sp.stderr:
+                f.write(line)
 
 
     def finish(self):
@@ -148,6 +148,9 @@ class JobManager:
         self.die = False
         self.worker = multiprocessing.Process(target=self.workQueue)
         self.worker.start()
+
+    def __catchInterruptedJobs(self):
+        Globals.db.query("SELECT ID FROM job WHERE status <> 'Finished' AND status <> 'Queued'")
 
     def removeJob(self, jobID):
         pass
