@@ -53,7 +53,7 @@ class HandBrakeOptions:
         d = json.loads(jsonStr)
         for attr in d.keys():
             setattr(self, attr, d[attr])
-
+    
     # Fairly straight-forward array building
     def toArgArray(self):
         retArray = []
@@ -98,7 +98,8 @@ class HandBrakeOptions:
         if self.x264opts:
             retArray += ['-x', self.x264opts]
         retArray += ['-e', 'x264']
-        retArray += [self.AddtlOpts]
+        if self.AddtlOpts:
+            retArray += self.AddtlOpts.split(' ') # Can't handle quotes for right now
         return retArray
 
 class HandBrakeCLI:
