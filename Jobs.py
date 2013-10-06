@@ -42,9 +42,19 @@ class Job:
         Globals.db.query("SELECT status FROM job WHERE ID = (?)",(self.id,),True)
         pass
 
+    def is_canceled(self):
+        ret = Globals.db.query("SELECT status FROM job WHERE ID = (?)",(self.id,),True)
+        if ret['status'] == 'Canceled':
+            return True
+        return False
+
     def run(self):
         if not Globals.db.query("SELECT status FROM job where ID = (?)",(self.id,),True):
             Globals.Log.debug("Could not find ID %s in database, will not run" % self.id)
+            return
+        if self.is_canceled():
+            Globals.Log.debug("Job %i is marked as canceld, will not run" % self.id)
+            return
         timeStart = time.time()
         savedPath = os.getcwd()
         outPath = "static/jobs/" + str(self.id) + "/"
@@ -61,14 +71,17 @@ class Job:
             self.setStatus('Finalizing')
             self.finish()
             self.setStatus('Finished')
-            timeDelta = time.time() - timeStart
-            timeDeltaStr = "%ih%im%is" % (round(timeDelta/(60*60)), round((timeDelta-60)/60), timeDelta%60)
-            self.setStatus('Finished: %s' % timeDeltaStr)
-            self.jobLog.debug("Encoded file in %f seconds" % (timeDelta))
+            seconds = (time.time() - timeStart)
+            hours = seconds // (60*60)
+            seconds %= (60*60)
+            minutes = seconds // 60
+            seconds %= 60
+            self.setStatus('Finished: %02i:%02i:%02i' % (hours, minutes, seconds))
+            self.jobLog.debug("Encoded file in %f seconds" % (seconds))
         except Exception as e:
             print sys.exc_info()[0]
             Globals.Log.debug("Job %d failed with message \"%s\"" % (self.id, e))
-            self.setStatus('Failed')
+            self.setStatus('Failed:%s' % e)
         finally:
             self.jobLog = None
             os.chdir(savedPath)
@@ -82,34 +95,43 @@ class Job:
 
     def prep(self):
         stderr = self.hb.scan()[1]
+        with open('scan.log', 'w') as f:
+            f.write(stderr)
         r = re.compile('autocrop: (\d+)/(\d+)/(\d+)/(\d+)')
         m = r.search(stderr)
-        autoCrop = [m.group(1), m.group(2), m.group(3), m.group(4)]
-        self.jobLog.debug("Autocrop scan match: " + str(autoCrop))
-        if not self.hb.Options.Crop:
-            self.hb.Options.Crop = autoCrop
-        conn = Globals.db.conn()
-        cur = conn.cursor()
-        cur.execute("UPDATE job SET arguments = (?) WHERE id = (?)", (self.hb.Options.toJSON(),self.id))
-        conn.commit()
-        conn.close()
+        if m is not None:
+            autoCrop = [m.group(1), m.group(2), m.group(3), m.group(4)]
+            self.jobLog.debug("Autocrop scan match: " + str(autoCrop))
+            if not self.hb.Options.Crop:
+                self.hb.Options.Crop = autoCrop
+                conn = Globals.db.conn()
+                cur = conn.cursor()
+                cur.execute("UPDATE job SET arguments = (?) WHERE id = (?)", (self.hb.Options.toJSON(),self.id))
+                conn.commit()
+                conn.close()
 
     def encode(self):
         sp = self.hb.encode()
+        #sp.start()
         # Reading from a command's output in real time is quite an exercise
         fcntl.fcntl(sp.stdout.fileno(), fcntl.F_SETFL,  fcntl.fcntl(sp.stdout.fileno(), fcntl.F_GETFL) | os.O_NONBLOCK)
         ETA = ""
+        output = ""
         while sp.poll() == None:
             out = select.select([sp.stdout.fileno()], [], [])[0]
             if not out:
                 continue
             else:
                 chunk = sp.stdout.read()
+                output = output + chunk
                 if chunk.find("ETA") > 0:
                     ETAnow = str(chunk[(chunk.find("ETA")+4):(chunk.find("ETA")+13)])
                     if not ETAnow == ETA:
                         ETA = ETAnow
-                        self.setStatus('Encoding: %s' % ETA)
+                        self.setStatus('Encoding: ETA %s' % ETA)
+        with open('encode.log', 'w'):
+            f.write(output)
+
 
     def finish(self):
         outDir = "/home/kannibalox/MyEnv/WebRake/static/jobs/" + str(self.id) + "/"
@@ -120,18 +142,19 @@ class JobManager:
     def __init__(self):
         Globals.Log.debug("Initializing job manager")
         self.Log = logging.getLogger("WebRake.JobManager")
-        self.runningJob = None
+        self.runningJob = multiprocessing.Queue()
         self.actionQueue = multiprocessing.Queue()
-        self.jobQueue = []
+        self.jobQueue = multiprocessing.Queue()
         self.die = False
+        self.worker = multiprocessing.Process(target=self.workQueue)
+        self.worker.start()
 
     def removeJob(self, jobID):
         pass
 
     def addJob(self, HandbrakeOptions):
         job = Job(HandbrakeOptions)
-        jobQueue.append(job.id)
-        self.workQueue()
+        self.jobQueue.put(job.id)
 
     def startJob(self, jobID):
         job = Job(jobID=jobID)
@@ -139,17 +162,10 @@ class JobManager:
         p.start()
         self.runningJob = p
 
-    # This function is going to recurse. Ugly, but works.
     def workQueue(self):
-        if len(jobQueue) > 0:
-            if self.runningJob is None or not self.runningJob.is_alive():
-                self.Log.debug("A current job is already running, not starting a new thread")
-                return
-            job = Job(jobID=jobQueue.pop(1))
-            p = multiprocessing.Process(target=job.run)
-            p.start()
-            self.runningJob = p
-            p.join()
+        while True:
+            job = Job(jobID=self.jobQueue.get())
+            job.run()
 
     def purgeJob(self, jobID):
         self.Log.info("Purging job %i" % jobID)

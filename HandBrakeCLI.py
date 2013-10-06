@@ -94,7 +94,7 @@ class HandBrakeOptions:
         if self.x264opts:
             retArray += ['-x', self.x264opts]
         retArray += ['-e', 'x264']
-        retArray += self.AddtlOpts
+        retArray += [self.AddtlOpts]
         return retArray
 
 class HandBrakeCLI:

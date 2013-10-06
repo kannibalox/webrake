@@ -12,7 +12,7 @@
         <option value="25">25</option>
         <option value="29.97">29.97</option>
 	</select></td><tr>
-    <tr><td>x263 Presets:</td><td><select id="x264Preset" name="x264Preset">
+    <tr><td>x264 Presets:</td><td><select id="x264Preset" name="x264Preset">
 	  {% for p in presets %}
 	  <option value="{{ p }}">{{ p }}</option>
 	  {% endfor %}
@@ -31,7 +31,7 @@
     <tr><td>Detelecine:</td><td><input type="checkbox" id="Detelecine" name="Detelecine"></td></tr>
     <tr><td>Start Duration:</td><td><input type="text" id="StartDuration" name="Duration"></td></tr>
     <tr><td>End Duration:</td><td><input type="text" id="EndDuration" name="Duration"></td></tr>
-    <tr><td>Other Parameters:</td><td><input type="text" id="Params" name="Params"></td></tr>
+    <tr><td>Other Parameters:</td><td><input type="text" id="AddtlOpts" name="AddtlOpts"></td></tr>
     </table>
     <input type="submit" value="Start Encode" />
     <button onClick="save_args()" type="button">Preview</button></br>

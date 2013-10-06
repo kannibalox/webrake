@@ -93,3 +93,8 @@ h3 {
   letter-spacing: -1px;
   color: #999;
 }
+
+.time {
+  color: #777;
+  font-size: small;
+}

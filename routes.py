@@ -8,15 +8,25 @@ import glob
 
 app = Flask(__name__)
 @app.route('/')
+def index():
+  return redirect(url_for('home'))
+
 @app.route('/queue')
 def home():
-  items = Globals.db.query('select * from job order by id desc')
+  num_items = Globals.db.query('select COUNT(*) from job')[0]['COUNT(*)']
+  page = request.args.get('page')
+  last_page = num_items/25
+  if page is None or page < 0:
+    page = 1
+  else:
+    page = min(int(page), last_page)
+  items = Globals.db.query('select * from job order by id desc')[(page-1)*25:page*25]
   for i in items:
     args = json.loads(i['arguments'])
     for attr in args:
       i[attr] = args[attr]
-    i['status'] = '<br />\n'.join(i['status'].split(':'))
-  return render_template('index.html', jobs=items)
+    i['status'] = i['status'].split(':', 1)
+  return render_template('index.html', jobs=items, page=page, last_page=last_page)
 
 @app.route('/start')
 def new():
@@ -37,7 +47,8 @@ def launch():
     arguments['isPreview'] = [False]
   if arguments['Crop'] == [u'', u'', u'', u'']:
     del(arguments['Crop'])
-
+  if arguments['Duration'] == [u'', u'']:
+    del(arguments['Duration'])
   for key in arguments.keys():
     if len(arguments[key]) == 1:
       arguments[key] = arguments[key][0]
@@ -60,7 +71,8 @@ def jobShow(jobID):
   static_dir = 'static/jobs/' + str(jobID)
   images = glob.glob(static_dir + '/*.png');
   output = glob.glob(static_dir + '/*.mkv');
-  return render_template('job.html', images=images, output=output, job=job)
+  logs = glob.glob(static_dir + '/*.log');
+  return render_template('job.html', images=images, output=output, logs=logs, job=job)
 
 @app.route('/job/<int:jobID>/json')
 def jobJSON(jobID):
@@ -76,10 +88,9 @@ def jobJSON(jobID):
     job['args'] = json.loads(jobInfo['arguments'])
     job['status'] = jobInfo['status']
     static_dir = 'static/jobs/' + str(jobID)
-    images = glob.glob(static_dir + '/*.png');
-    job['images'] = images
-    output = glob.glob(static_dir + '/*.mkv');
-    job['output'] = output
+    job['images'] = glob.glob(static_dir + '/*.png')
+    job['output'] = glob.glob(static_dir + '/*.mkv')
+    job['logs'] = glob.glob(static_dir + '/*.log')
   for argument in job['args'].keys():
     if job['args'][argument] is None or not job['args'][argument]:
       del job['args'][argument]
@@ -97,8 +108,8 @@ def purgeJob(jobID):
 
 @app.route('/stop/<int:jobID>')
 def stopJob(jobID):
-  Jobs.Manager.action("stop", jobID)
-  return "uhh"
+  Jobs.Manager.stop(jobID)
+  return redirect(url_for('jobShow', jobID=jobID))
   
 @app.route('/shutdown', methods=['POST'])
 def shutdown():

@@ -16,7 +16,13 @@
     <a href=""><img title="Copy" src="{{ url_for('static', filename='images/icons/bullet_go.png') }}"/></a>
     <a href=""><img title="Purge" src="{{ url_for('static', filename='images/icons/bin_empty.png') }}"/></a>
     <a href=""><img title="Delete" src="{{ url_for('static', filename='images/icons/cross.png') }}"/></a>
-    </center><br/>
+    <br/><br/>
+
+    <a href="/queue">First</a>
+    <a href="/queue?page={{ page-1 }}">Prev</a>
+    <a href="/queue?page={{ page+1 }}">Next</a>
+    <a href="/queue?page={{ last_page }}">Last</a>
+    </center>
 
     <table id="queue">
     <tr><th>#</td><th><input type="checkbox" id="checkall"></th><th>Status</th><th>Input</th><th>Output</th><th>Actions</th></tr>
@@ -24,7 +30,7 @@
     <tr class="{{ loop.cycle('odd', 'even') }}">
       <td>{{ j.id }}</td>
       <td><input type="checkbox" name="checkJob" id="checkJob"></td>
-      <td>{{ j.status }}</td>
+      <td>{{ j.status.0 }}</br><div class="time">{{ j.status.1 }}</div></td>
       <td>{{ j.Input }}</td>
       <td>{{ j.Output }}</td>
       <td>

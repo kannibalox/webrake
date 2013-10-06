@@ -10,6 +10,9 @@
   <tr><td>{{ a }}</td><td>{{ job.args[a] }}</td></tr>
   {% endfor %}
   </table>
+  {% for l in logs %}
+  <a href="{{ url_for('static', filename=l[7:]) }}">{{ l }}</a></br>
+  {% endfor %}
   {% for o in output %}
   <a href="{{ url_for('static', filename=o[7:]) }}">{{ o }}</a></br>
   {% endfor %}
