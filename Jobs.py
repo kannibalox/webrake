@@ -153,7 +153,10 @@ class JobManager:
         Globals.db.query("SELECT ID FROM job WHERE status <> 'Finished' AND status <> 'Queued'")
 
     def removeJob(self, jobID):
-        pass
+        job = Job(jobID=jobID)
+        job.setStatus("Deleted")
+        static_dir = "static/jobs/" + str(jobID)
+        shutil.rmtree(static_dir)
 
     def addJob(self, HandbrakeOptions):
         job = Job(HandbrakeOptions)

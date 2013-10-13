@@ -20,7 +20,7 @@ def home():
     page = 1
   else:
     page = min(int(page), last_page)
-  items = Globals.db.query('select * from job order by id desc')[(page-1)*25:page*25]
+  items = Globals.db.query('select * from job where status <> \'Deleted\' order by id desc')[(page-1)*25:page*25]
   for i in items:
     args = json.loads(i['arguments'])
     for attr in args:
@@ -97,9 +97,10 @@ def jobJSON(jobID):
   job['id'] = jobID
   return jsonify(job)
 
-@app.route('/delete/<int:jobID>')
-def deleteJob(jobID):
-  Jobs.Manager.action("delete", jobID)
+@app.route('/remove/<int:jobID>')
+def removeJob(jobID):
+  Jobs.Manager.removeJob(jobID)
+  return redirect(url_for('home'))
 
 @app.route('/purge/<int:jobID>')
 def purgeJob(jobID):

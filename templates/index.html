@@ -37,7 +37,7 @@
 	<a href="{{ url_for('jobShow', jobID=j.id) }}"><img title="Details" src="{{ url_for('static', filename='images/icons/magnifier.png') }}"/></a>
 	<a href="{{ url_for('new') }}?copy={{ j.id }}"><img title="Copy" src="{{ url_for('static', filename='images/icons/bullet_go.png') }}"/></a>
 	<a href="{{ url_for('purgeJob', jobID=j.id) }}"><img title="Purge" src="{{ url_for('static', filename='images/icons/bin_empty.png') }}"/></a>
-	<a href="{{ url_for('deleteJob', jobID=j.id) }}"><img title="Delete" src="{{ url_for('static', filename='images/icons/cross.png') }}"/></a>
+	<a href="{{ url_for('removeJob', jobID=j.id) }}"><img title="Delete" src="{{ url_for('static', filename='images/icons/cross.png') }}"/></a>
       </td>
     </tr>
     {% endfor %}
