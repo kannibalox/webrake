@@ -4,7 +4,7 @@
     <h2>Start New</h2>
     <form id="argForm" action="/launch" method="post">
     <table>
-    <tr><td>Input:</td><td><input type="text" id="Input" name="Input"></td></tr>
+    <tr><td>Input:</td><td><input type="text" id="Input" name="Input"><button type="button" id="show_selector">Browse</button><div id="file_selector"></div></td></tr>
     <tr><td>Output:</td><td><input type="text" id="Output" name="Output"></td></tr>
     <tr><td>x264 Opts.:</td><td><input type="text" id="x264opts" name="x264opts"></td></tr>
     <tr><td>Frame Rate:</td><td><select id="FrameRate" name="FrameRate">
@@ -13,9 +13,9 @@
           <option value="29.97">29.97</option>
           </select></td><tr>
     <tr><td>Anamorphic</td><td><select id="Anamorphic" name="Anamorphic">
+          <option value="Strict">Strict</option>
 	  <option value="Custom">Custom</option>
 	  <option value="Loose">Loose</option>
-          <option value="Strict">Strict</option>
 	  </select></td><tr>
     <tr><td>x264 Presets:</td><td><select id="x264Preset" name="x264Preset">
 	  {% for p in presets %}
@@ -44,6 +44,7 @@
   </div>
 {% endblock %}
 {% block script %}
+<script src="static/js/jqueryFileTree.js"></script>
 <script type="text/javascript">
 var copyJobID = {{ copyJob }};
 $.getJSON('job/' + copyJobID + '/json', function(data) {
@@ -65,6 +66,23 @@ $.getJSON('job/' + copyJobID + '/json', function(data) {
     $('#CropLeft').val(data['args']['Crop'][2]);
     $('#CropRight').val(data['args']['Crop'][3]);
   }
+  $('#file_selector').hide();
+  $('#show_selector').click(function() { 
+    $('#file_selector').toggle();
+    if ($(this).text() == "Browse") {
+      $(this).text("Done");
+    } else {
+      $(this).text("Browse");
+    }
+  });
+  $('#file_selector').fileTree({ 
+    root: '{{ selectorRoot }}', 
+    script: '/dirlist',
+    expandSpeed: -1, 
+    collapseSpeed: -1},
+    function(file) {
+      $('#Input').val(file);
+  });
 });
 </script>
 {% endblock %}

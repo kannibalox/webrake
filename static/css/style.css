@@ -98,3 +98,9 @@ h3 {
   color: #777;
   font-size: small;
 }
+
+#file_selector {
+  background: #EEE;
+  border-style: dotted;
+  border-width: 1px;
+}

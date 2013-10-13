@@ -1,10 +1,14 @@
 from flask import Flask, render_template, flash, Response, request, redirect, url_for, jsonify
 import Globals
+import Config
 import Jobs
 import HandBrakeCLI
+
 from time import sleep
 import simplejson, json
 import glob
+import os
+import urllib2
 
 app = Flask(__name__)
 @app.route('/')
@@ -34,7 +38,29 @@ def new():
   if copy_id is None:
     copy_id = 0
   x264Presets = "ultrafast/superfast/veryfast/faster/fast/medium/slow/slower/veryslow/placebo".split('/') # I'm a lazy bastard
-  return render_template('start.html', copyJob=copy_id, presets=x264Presets)
+  return render_template('start.html', copyJob=copy_id, presets=x264Presets, selectorRoot = Config.SelectorRoot)
+
+@app.route('/dirlist', methods=['POST'])
+def dirlist():
+  dirreq = urllib2.unquote(dict(request.form)['dir'][0])
+  r=['<ul class="jqueryFileTree" style="display: none;">']
+  try:
+    if dirreq.find(Config.SelectorRoot, 0, len(Config.SelectorRoot)) == -1:
+      raise PermissionError("Access outside of selector root not allowed")
+    r=['<ul class="jqueryFileTree" style="display: none;">']
+    d=dirreq
+    for f in os.listdir(d):
+      ff=os.path.join(d,f)
+      if os.path.isdir(ff):
+        r.append('<li class="directory collapsed"><a href="#" rel="%s/">%s</a></li>' % (ff,f))
+      else:
+        e=os.path.splitext(f)[1][1:] # get .ext and remove dot
+        r.append('<li class="file ext_%s"><a href="#" rel="%s">%s</a></li>' % (e,ff,f))
+    r.append('</ul>')
+  except Exception,e:
+    r.append('Could not load directory: %s' % str(e))
+  r.append('</ul>')
+  return ''.join(r)
 
 @app.route('/launch', methods=['POST'])
 def launch():
