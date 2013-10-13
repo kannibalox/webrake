@@ -102,6 +102,11 @@ def removeJob(jobID):
   Jobs.Manager.removeJob(jobID)
   return redirect(url_for('home'))
 
+@app.route('/finalize/<int:jobID>')
+def finalizeJob(jobID):
+  Jobs.Manager.finalizeJob(jobID)
+  return redirect(url_for('home'))
+
 @app.route('/purge/<int:jobID>')
 def purgeJob(jobID):
   Jobs.Manager.purgeJob(jobID)

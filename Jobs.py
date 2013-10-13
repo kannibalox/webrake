@@ -3,6 +3,7 @@ import HandBrakeCLI
 import Globals
 import Screenshots
 
+import simplejson, json
 import glob
 import multiprocessing
 import time
@@ -44,7 +45,7 @@ class Job:
 
     def is_canceled(self):
         ret = Globals.db.query("SELECT status FROM job WHERE ID = (?)",(self.id,),True)
-        if ret['status'] == 'Canceled':
+        if ret['status'] == 'Canceled' or ret['status'] == 'Deleted':
             return True
         return False
 
@@ -157,6 +158,15 @@ class JobManager:
         job.setStatus("Deleted")
         static_dir = "static/jobs/" + str(jobID)
         shutil.rmtree(static_dir)
+
+    def finalizeJob(self, jobID):
+        jInput = json.loads(Globals.db.query("SELECT arguments FROM job WHERE id = (?)", (jobID,), True)['arguments'])['Input']
+        print jInput
+        cur = Globals.db.query("SELECT ID, arguments FROM job WHERE id < (?)", (jobID,))
+        for row in cur:
+            if json.loads(Globals.db.query("SELECT arguments FROM job WHERE id = (?)", (row['id'],), True)['arguments'])['Input'] == jInput:
+                job = Job(jobID=row['id'])
+                job.setStatus("Deleted")
 
     def addJob(self, HandbrakeOptions):
         job = Job(HandbrakeOptions)
