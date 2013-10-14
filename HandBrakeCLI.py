@@ -1,10 +1,5 @@
 import subprocess
-import fcntl
-import select
-import os
-import time
 import simplejson, json
-import re
 
 class HandBrakeOptions:
     MAIN_FEATURE = "--main-feature"
@@ -121,81 +116,7 @@ class HandBrakeCLI:
     def encode(self):
         sp = subprocess.Popen([self.HandBrakePath] + self.Options.toArgArray(), stdout= subprocess.PIPE, stderr= subprocess.PIPE)
         return sp
-        print("Opening HandBrake thread")
-        # HandBrake doesn't output newlines until finished, so real-time output reading is quite an excercise
-        fcntl.fcntl(sp.stdout.fileno(), fcntl.F_SETFL,  fcntl.fcntl(sp.stdout.fileno(), fcntl.F_GETFL) | os.O_NONBLOCK)
-        while sp.poll() == None:
-            out = select.select([sp.stdout.fileno()], [], [])[0]
-            if not out:
-                continue
-            chunk = sp.stdout.read()
-            if chunk.find("ETA") > 0:
-                ETAnow = str(chunk[(chunk.find("ETA")+4):(chunk.find("ETA")+13)])
-                if not ETAnow == self.ETA:
-                    print("Found ETA. It is " + ETAnow)
-                    self.ETA = ETAnow
-        print("Handbrake thread completed successfully")
-        return "Done"
 
-    # Parses a HandBrake scan for information. Rather hackish at the moment.
-    def parseScan(self, scanLines):
-        lineIter = iter(scanLines.splitlines())
-        for line in lineIter:
-            if line.find("Found main feature title") >= 0:
-                print "Main feature was found, starting parse"
-                next(lineIter) # Skip title length
-                next(lineIter) # Skip title identifier line
-                while True:
-                    try: 
-                        mainLine = next(lineIter)
-                    except StopIteration:
-                        print "End of scan, exiting..."
-                        return
-                    print mainLine
-                    if mainLine[0] == '+':
-                        print "Next title found"
-                        break
-                    propName, separator, propVal = mainLine.strip(' +').partition( ": " )
-                    if propName == 'audio tracks:':
-                        print "Start of audio tracks"
-                        while True:
-                            nextStr = next(lineIter)
-                            if nextStr[0:6] == '    + ':
-                                print "Audio track found"
-                                self.AudioTracks.append(nextStr.partition(', ')[2])
-                            else:
-                                print self.AudioTracks
-                                print "End of audio tracks"
-                                propName, separator, propVal = nextStr.strip(' +').partition( ": " )
-                                break
-                    if propName == 'subtitle tracks:':
-                        print "Start of subtitle tracks"
-                        while True:
-                            try:
-                                nextStr = next(lineIter)
-                            except StopIteration:
-                                return
-                            if nextStr[0:6] == '    + ':
-                                print "Subtitle track found"
-                                self.SubTracks.append(nextStr.partition(', ')[2])
-                            else:
-                                print self.SubTracks
-                                print "Done finding subs"
-                                propName, separator, propVal = nextStr.strip(' +').partition( ": " )
-                                break
-                    propName, separator, propVal = mainLine.strip(' +').partition( ": " )
-                    if propName == "autocrop":
-                        self.Crop = propVal.split('/')
-                        print self.Crop
-                    if propName == "duration":
-                        h, m, s = propVal.split(':')
-                        self.Duration = (int(h) * 60 * 60) + (int(m) * 60) + int(s)
-                        print self.Duration
-                    if propName == "size":
-                        subProps = mainLine.strip(' +').split(',')
-                        self.Width = subProps[0].partition( ": " )[2].split('x')[0]
-                        self.Height = subProps[0].partition( ": " )[2].split('x')[1]
-                        print self.Width,'x',self.Height
 def main():
     hb = HandBrakeCLI()
     hb.Options.setDefaults()

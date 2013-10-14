@@ -29,6 +29,21 @@ class Database:
         rv = [dict((cur.description[idx][0], value) for idx, value in enumerate(row)) for row in cur.fetchall()]
         return (rv[0] if rv else None) if one else rv
 
+    def insert(self, query, args=()):
+        conn = self.conn()
+        cur = conn.execute(query, args)
+        ret = cur.lastrowid
+        conn.commit()
+        conn.close()
+        return ret
+
+    def update(self, query, args=()):
+        conn = self.conn()
+        cur = conn.execute(query, args)
+        conn.commit()
+        conn.close()
+        return
+
     def conn(self):
         return sqlite3.connect(self.dbFile)
 

@@ -21,13 +21,7 @@ class Job:
         self.hb = HandBrakeCLI.HandBrakeCLI()
         if handbrakeoptions:
             self.hb.Options = handbrakeoptions
-            self.id = None
-            conn = Globals.db.conn()
-            cur = conn.cursor()
-            cur.execute("INSERT INTO job(status, arguments) VALUES('Queued', (?))", (self.hb.Options.toJSON(),))
-            self.id = cur.lastrowid
-            conn.commit()
-            conn.close()
+            self.id = Globals.db.insert("INSERT INTO job(status, arguments) VALUES('Queued', (?))", (self.hb.Options.toJSON(),))
             Globals.Log.debug("Added job " + str(self.id))
         elif jobID:
             self.load(jobID)
@@ -38,10 +32,6 @@ class Job:
         if r['arguments']:
             self.hb.Options.setDefaults()
             self.hb.Options.fromJSON(r['arguments'])
-
-    def is_active(self):
-        Globals.db.query("SELECT status FROM job WHERE ID = (?)",(self.id,),True)
-        pass
 
     def is_canceled(self):
         ret = Globals.db.query("SELECT status FROM job WHERE ID = (?)",(self.id,),True)
@@ -54,7 +44,7 @@ class Job:
             Globals.Log.debug("Could not find ID %s in database, will not run" % self.id)
             return
         if self.is_canceled():
-            Globals.Log.debug("Job %i is marked as canceld, will not run" % self.id)
+            Globals.Log.debug("Job %i is marked as canceled, will not run" % self.id)
             return
         timeStart = time.time()
         savedPath = os.getcwd()
@@ -88,11 +78,7 @@ class Job:
             os.chdir(savedPath)
 
     def setStatus(self, status):
-        conn = Globals.db.conn()
-        cur = conn.cursor()
-        cur.execute("UPDATE job SET status = (?) WHERE id = (?)", (status, self.id))
-        conn.commit()
-        conn.close()
+        Globals.db.update("UPDATE job SET status = (?) WHERE id = (?)", (status, self.id))
 
     def prep(self):
         stderr = self.hb.scan()[1]
@@ -105,15 +91,10 @@ class Job:
             self.jobLog.debug("Autocrop scan match: " + str(autoCrop))
             if not self.hb.Options.Crop:
                 self.hb.Options.Crop = autoCrop
-                conn = Globals.db.conn()
-                cur = conn.cursor()
-                cur.execute("UPDATE job SET arguments = (?) WHERE id = (?)", (self.hb.Options.toJSON(),self.id))
-                conn.commit()
-                conn.close()
+                conn = Globals.db.update("UPDATE job SET arguments = (?) WHERE id = (?)", (self.hb.Options.toJSON(),self.id))
 
     def encode(self):
         sp = self.hb.encode()
-        #sp.start()
         # Reading from a command's output in real time is quite an exercise
         fcntl.fcntl(sp.stdout.fileno(), fcntl.F_SETFL,  fcntl.fcntl(sp.stdout.fileno(), fcntl.F_GETFL) | os.O_NONBLOCK)
         ETA = ""
@@ -142,10 +123,8 @@ class JobManager:
     def __init__(self):
         Globals.Log.debug("Initializing job manager")
         self.Log = logging.getLogger("WebRake.JobManager")
-        self.runningJob = multiprocessing.Queue()
-        self.actionQueue = multiprocessing.Queue()
+        self.runningJob = None
         self.jobQueue = multiprocessing.Queue()
-        self.die = False
         self.worker = multiprocessing.Process(target=self.workQueue)
         self.worker.start()
 
@@ -176,12 +155,6 @@ class JobManager:
         job = Job(HandbrakeOptions)
         self.jobQueue.put(job.id)
 
-    def startJob(self, jobID):
-        job = Job(jobID=jobID)
-        p = multiprocessing.Process(target=job.run)
-        p.start()
-        self.runningJob = p
-
     def workQueue(self):
         while True:
             job = Job(jobID=self.jobQueue.get())
@@ -208,9 +181,6 @@ class JobManager:
             return "Terminated"
         return "Not running %s" % self.runningJob
         
-    def action(self, action, args=None):
-        self.actionQueue.put((action,args))
-
 def init():
     global Manager
     Manager = JobManager()
