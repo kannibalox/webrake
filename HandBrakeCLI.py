@@ -100,14 +100,7 @@ class HandBrakeOptions:
 class HandBrakeCLI:
     def __init__(self):
         self.HandBrakePath = "HandBrakeCLI"
-        self.Width = 0
-        self.Height = 0
-        self.AudioTracks = []
-        self.SubTracks = []
-        self.Test = 5
         self.Options = HandBrakeOptions()
-        self.ETA = ""
-        self.autoCrop = []
         
     def scan(self):
         scanStrings = subprocess.Popen([self.HandBrakePath, "--main-feature", "-i", self.Options.Input, "-t", "0", "-v", "0"], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
