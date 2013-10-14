@@ -133,7 +133,6 @@ class Job:
             for line in sp.stderr:
                 f.write(line)
 
-
     def finish(self):
         outDir = "/home/kannibalox/MyEnv/WebRake/static/jobs/" + str(self.id) + "/"
         S = Screenshots.Screenshots(self.id, outDir)
@@ -151,13 +150,19 @@ class JobManager:
         self.worker.start()
 
     def __catchInterruptedJobs(self):
-        Globals.db.query("SELECT ID FROM job WHERE status <> 'Finished' AND status <> 'Queued'")
+        cur = Globals.db.query("SELECT ID FROM job WHERE status NOT LIKE 'Finished%' AND status <> 'Queued' AND Status NOT LIKE 'Failed%'")
+        for row in cur:
+            j = Job(jobID=row['id'])
+            j.setStatus("Interrupted")
 
     def removeJob(self, jobID):
         job = Job(jobID=jobID)
         job.setStatus("Deleted")
         static_dir = "static/jobs/" + str(jobID)
-        shutil.rmtree(static_dir)
+        try:
+            shutil.rmtree(static_dir)
+        except OSError:
+            pass
 
     def finalizeJob(self, jobID):
         jInput = json.loads(Globals.db.query("SELECT arguments FROM job WHERE id = (?)", (jobID,), True)['arguments'])['Input']
@@ -165,8 +170,7 @@ class JobManager:
         cur = Globals.db.query("SELECT ID, arguments FROM job WHERE id < (?)", (jobID,))
         for row in cur:
             if json.loads(Globals.db.query("SELECT arguments FROM job WHERE id = (?)", (row['id'],), True)['arguments'])['Input'] == jInput:
-                job = Job(jobID=row['id'])
-                job.setStatus("Deleted")
+                self.removeJob(row['id'])
 
     def addJob(self, HandbrakeOptions):
         job = Job(HandbrakeOptions)
