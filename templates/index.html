@@ -12,10 +12,11 @@
       <option>Failed</option>
     </select>
     Action All:
-    <a href=""><img title="Details" src="{{ url_for('static', filename='images/icons/magnifier.png') }}"/></a>
-    <a href=""><img title="Copy" src="{{ url_for('static', filename='images/icons/bullet_go.png') }}"/></a>
-    <a href=""><img title="Purge" src="{{ url_for('static', filename='images/icons/bin_empty.png') }}"/></a>
-    <a href=""><img title="Delete" src="{{ url_for('static', filename='images/icons/cross.png') }}"/></a>
+    <a href="#"><img title="Details" src="{{ url_for('static', filename='images/icons/magnifier.png') }}"/></a>
+    <a href="#"><img title="Copy" src="{{ url_for('static', filename='images/icons/bullet_go.png') }}"/></a>
+    <a href="#"><img title="Purge" src="{{ url_for('static', filename='images/icons/bin_empty.png') }}"/></a>
+    <a href="#"><img title="Delete" src="{{ url_for('static', filename='images/icons/cross.png') }}"/></a>
+    <a href="#"><img title="Compare" id="CompareAll" src="{{ url_for('static', filename='images/icons/layers.png') }}"></a>
     <br/><br/>
 
     <a href="/queue">First</a>
@@ -29,7 +30,7 @@
     {% for j in jobs %}
     <tr class="{{ loop.cycle('odd', 'even') }}">
       <td>{{ j.id }}</td>
-      <td><input type="checkbox" name="checkJob" id="checkJob"></td>
+      <td><input type="checkbox" name="checkJob" value="{{ j.id }}" class="checkJob"></td>
       <td>{{ j.status.0 }}</br><div class="time">{{ j.status.1 }}</div></td>
       <td>{{ j.Input }}</td>
       <td>{{ j.Output }}</td>
@@ -45,4 +46,16 @@
   </div>
 {% endblock %}
 {% block script %}
+<script type="text/javascript">
+$('#checkall').click (function () {
+  $(':checkbox[name=checkJob]').prop('checked', this.checked);
+});
+$('#CompareAll').click(function () {
+  var j = [];
+  $('#queue input:checked').each(function() {
+    j.push(this.value);
+  });
+  window.location.href = '/compare/' + j.sort().join(',');
+});
+</script>
 {% endblock %}

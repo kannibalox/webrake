@@ -1,0 +1,71 @@
+{% extends "layout.html" %}
+{% block content %}
+  <div class="page_content">
+    <center>
+    <span id="jobLinks"></span><br/>
+    <h3>Job: <span id="jobID"></span></h3><br/>
+    <div id="jobInfo"></div><br/>
+    <img id="comp1"/><br/>
+    <img id="comp2"/><br/>
+    <img id="comp3"/><br/>
+    <img id="comp4"/><br/>
+    <img id="comp5"/>
+    </center>
+  </div>
+{% endblock content %}
+{% block script %}
+<script type="text/javascript">
+
+jobData = {{ jobData }}
+jobViewIndex = 0
+
+function loadJob(j) {
+  data = jobData[j];
+  $('#jobID').text(data['id']);
+  table = '<table>';
+  $.each(data['args'], function(key, value) {
+    table += '<tr><td>' + key + ':</td><td>' + value + '</td><tr>';
+  });
+  table += '</table>';
+  $('#jobInfo').html(table);
+  $.each(data['images'], function(index, value) {
+    $('#comp' + index).attr('src', '/' + data['images'][index]);
+  });
+  return j;
+}
+
+$(document).ready(function() {
+  jobLink = "";
+  $.each(jobData, function(index, value) {
+    jobLink += '' +  jobData[index]['id'] + " - ";
+  });
+  $('#jobLinks').text(' - ' + jobLink);
+  loadJob(jobViewIndex);  
+
+  $(document).keydown(function(e) {
+    switch(e.which) {
+        case 37: // left
+        if (jobViewIndex > 0) {
+          jobViewIndex -= 1; }
+        loadJob(jobViewIndex);
+        break;
+
+        case 38: // up
+        break;
+
+        case 39: // right
+        if (jobViewIndex < jobData.length - 1) {
+          jobViewIndex += 1; }
+        loadJob(jobViewIndex);
+        break;
+
+        case 40: // down
+        break;
+
+        default: return; // exit this handler for other keys
+    }
+    e.preventDefault(); // prevent the default action (scroll / move caret)
+  });
+});
+</script>
+{% endblock script %}

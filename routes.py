@@ -1,4 +1,4 @@
-from flask import Flask, render_template, flash, Response, request, redirect, url_for, jsonify
+from flask import Flask, render_template, flash, Response, request, redirect, url_for, jsonify, Markup
 import Globals
 import Config
 import Jobs
@@ -99,6 +99,33 @@ def jobShow(jobID):
   output = glob.glob(static_dir + '/*.mkv');
   logs = glob.glob(static_dir + '/*.log');
   return render_template('job.html', images=images, output=output, logs=logs, job=job)
+
+@app.route('/compare/<jobs>')
+def jobCompare(jobs):
+  jobData = []
+  for j in jobs.split(','):
+    jobInfo = {}
+    jobInfo['args'] = json.loads(Globals.db.query('SELECT arguments FROM job WHERE ID=(?)', (j,), True)['arguments'])
+    static_dir = 'static/jobs/' + str(j)
+    jobInfo['images'] = glob.glob(static_dir + '/*.png')
+    jobInfo['id'] = j
+    jobData.append(jobInfo)
+  allKeys = set()
+  for j in jobData:
+    allKeys = allKeys.union(set(j['args'].keys()))
+  showKeys = []
+  for k in allKeys:
+    val = jobData[0]['args'][k]
+    for j in jobData:
+      if k not in j['args'] or j['args'][k] != val:
+        showKeys.append(k)
+        break
+  for j in jobData:
+    for a in j['args'].keys():
+      if not a in showKeys:
+        del j['args'][a]
+
+  return render_template('compare.html', jobData=Markup(json.dumps(jobData)))
 
 @app.route('/job/<int:jobID>/json')
 def jobJSON(jobID):
