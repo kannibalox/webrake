@@ -5,6 +5,7 @@
   <a href="{{ url_for('new') }}?copy={{ job.id}}">[Copy]</a>
   <a href="{{ url_for('purgeJob', jobID=job.id) }}">[Purge]</a>
   <a href="{{ url_for('finalizeJob', jobID=job.id) }}">[Finalize]</a>
+  <a href="{{ url_for('exportJob', jobID=job.id) }}">[Export]</a>
   <table>
   <tr><th>Argument</th><th>Value</th></tr>
   {% for a in job.args %}

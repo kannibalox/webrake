@@ -2,6 +2,7 @@
 import HandBrakeCLI
 import Globals
 import Screenshots
+import Config
 
 import simplejson, json
 import glob
@@ -133,6 +134,10 @@ class JobManager:
         for row in cur:
             j = Job(jobID=row['id'])
             j.setStatus("Interrupted")
+
+    def exportJob(self, jobID):
+        path = "static/jobs/" + str(jobID) + '/' + json.loads(Globals.db.query("SELECT arguments FROM job WHERE id = (?)", (jobID,), True)['arguments'])['Output']
+        shutil.move(path, Config.ExportDirectory)
 
     def removeJob(self, jobID):
         job = Job(jobID=jobID)

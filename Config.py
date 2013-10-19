@@ -17,6 +17,7 @@ def loadSettings():
     globals()['Database'] = conf.get('Main', 'Database')
     globals()['WebHost'] = conf.get('Main', 'WebHost')
     globals()['SelectorRoot'] = conf.get('Main', 'SelectorRoot')
+    globals()['ExportDirectory'] = conf.get('Main', 'ExportDirectory')
 
 def get(item):
     return getattr(Conf, item)

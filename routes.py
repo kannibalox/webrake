@@ -155,6 +155,11 @@ def removeJob(jobID):
   Jobs.Manager.removeJob(jobID)
   return redirect(url_for('home'))
 
+@app.route('/export/<int:jobID>')
+def exportJob(jobID):
+  Jobs.Manager.exportJob(jobID)
+  return redirect(url_for('jobShow', jobID=jobID))
+
 @app.route('/finalize/<int:jobID>')
 def finalizeJob(jobID):
   Jobs.Manager.finalizeJob(jobID)
