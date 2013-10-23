@@ -99,6 +99,10 @@ h3 {
   font-size: small;
 }
 
+.log_toggle {
+  font-size: small;
+}
+
 #file_selector {
   background: #EEE;
   border-style: dotted;

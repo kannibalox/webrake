@@ -13,7 +13,8 @@
   {% endfor %}
   </table>
   {% for l in logs %}
-  <a href="{{ url_for('static', filename=l[7:]) }}">{{ l }}</a></br>
+  <a href="{{ url_for('static', filename=l.path[7:]) }}">{{ l.name }}</a> <a class="log_toggle" href="#" id="show_{{ l.ID }}">(show)</a>
+  <div class="log_text" id="log_{{ l.ID }}" style="display: none;"><pre>{{ l.text|safe }}</pre></div></br>
   {% endfor %}
   {% for o in output %}
   <a href="{{ url_for('static', filename=o[7:]) }}">{{ o }}</a></br>
@@ -22,4 +23,21 @@
   <img src="{{ url_for('static', filename=i[7:]) }}"/>
   {% endfor %} 
 </div>
+{% endblock %}
+{% block script %}
+<script type="text/javascript">
+$(document).ready(function() {
+  {% for l in logs %}
+    $('#show_{{ l.ID }}').click(function() {
+      if ($(this).text() == "(show)") {
+        $(this).text("(hide)");
+      } else {
+        $(this).text("(show)");
+      }
+      $('#log_{{ l.ID }}').toggle(400);
+      return false;
+    });
+  {% endfor %}
+});
+</script>
 {% endblock %}

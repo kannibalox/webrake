@@ -97,7 +97,12 @@ def jobShow(jobID):
   static_dir = 'static/jobs/' + str(jobID)
   images = glob.glob(static_dir + '/*.png')
   output = glob.glob(static_dir + '/*.mkv')
-  logs = glob.glob(static_dir + '/*.log')
+  log_paths = glob.glob(static_dir + '/*.log')
+  logs = []
+  for l in log_paths:
+    with open(l) as log_file:
+      log_str = unicode(log_file.read().replace('\n', '<br/>'), errors='ignore')
+    logs.append({'path': l, 'text': log_str, 'name': os.path.basename(l), 'ID': os.path.basename(l).replace('.', '_')})
   Globals.Log.debug("Showing job %s (%s arguments, %s images, %s files, %s logs)" % (jobID, len(json.loads(jobInfo['arguments'])), len(images), len(output), len(logs)))
   return render_template('job.html', images=images, output=output, logs=logs, job=job)
 
