@@ -116,7 +116,7 @@ class Job:
                 f.write(line)
 
     def finish(self):
-        outDir = "/home/kannibalox/MyEnv/WebRake/static/jobs/" + str(self.id) + "/"
+        outDir = "static/jobs/" + str(self.id) + "/"
         S = Screenshots.Screenshots(self.id, outDir)
         S.takeAllPreviewScreenshots()
 
