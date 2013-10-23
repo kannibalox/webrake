@@ -95,9 +95,10 @@ def jobShow(jobID):
   job['id'] = jobID
   job['status'] = jobInfo['status']
   static_dir = 'static/jobs/' + str(jobID)
-  images = glob.glob(static_dir + '/*.png');
-  output = glob.glob(static_dir + '/*.mkv');
-  logs = glob.glob(static_dir + '/*.log');
+  images = glob.glob(static_dir + '/*.png')
+  output = glob.glob(static_dir + '/*.mkv')
+  logs = glob.glob(static_dir + '/*.log')
+  Globals.Log.debug("Showing job %s (%s arguments, %s images, %s files, %s logs)" % (jobID, len(json.loads(jobInfo['arguments'])), len(images), len(output), len(logs)))
   return render_template('job.html', images=images, output=output, logs=logs, job=job)
 
 @app.route('/compare/<jobs>')
