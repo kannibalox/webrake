@@ -6,6 +6,7 @@
     <table>
     <tr><td>Input:</td><td><input type="text" id="Input" name="Input"><button type="button" id="show_selector">Browse</button><div id="file_selector"></div></td></tr>
     <tr><td>Output:</td><td><input type="text" id="Output" name="Output"></td></tr>
+    <tr><td>Title:</td><td><input type="text" id="Title" name="Title"></td><td>Main Feature: <input type="checkbox" id="mainFeature" name="mainFeature"/></tr></tr>
     <tr><td>x264 Opts.:</td><td><input type="text" id="x264opts" name="x264opts"></td></tr>
     <tr><td>Frame Rate:</td><td><select id="FrameRate" name="FrameRate">
           <option value="23.976">23.976</option>
@@ -56,6 +57,11 @@ $.getJSON('job/' + copyJobID + '/json', function(data) {
       elem.val(val);
     }
   });
+  if ('Title' in data['args']) {
+    if (data['args']['Title'] == "--main-feature") {
+      $('#mainFeature').attr('checked', true);
+    }
+  }
   if ('Duration' in data['args']) {
     $('#StartDuration').val(data['args']['Duration'][0]);
     $('#EndDuration').val(data['args']['Duration'][1]);
@@ -66,6 +72,15 @@ $.getJSON('job/' + copyJobID + '/json', function(data) {
     $('#CropLeft').val(data['args']['Crop'][2]);
     $('#CropRight').val(data['args']['Crop'][3]);
   }
+  $('#mainFeature').change(function () {
+    if($(this).is(":checked")) {
+       $('#Title').attr("disabled", "disabled");
+       $('#Title').val('--main-feature');
+    } else {
+       $('#Title').removeAttr("disabled");
+       $('#Title').val('');
+    }
+  });
   $('#file_selector').hide();
   $('#show_selector').click(function() { 
     $('#file_selector').toggle();
