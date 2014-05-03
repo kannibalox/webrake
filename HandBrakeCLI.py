@@ -13,6 +13,10 @@ class HandBrakeOptions:
         self.Title = ""
         self.Quality = ""
         self.VideoBitRate = ""
+        self.Height = ""
+        self.Width = ""
+        self.KeepAspectRatio = None
+        self.Modulus = ""
         self.AudioUse = []
         self.AudioEncoder = []
         self.AudioBitRate = []
@@ -52,46 +56,49 @@ class HandBrakeOptions:
     # Fairly straight-forward array building
     def toArgArray(self):
         retArray = []
+
         if not self.Input:
             Log.severe("Must have input file!")
-        retArray += ['-i', self.Input]
-        if self.Output:
-            retArray += ['-o', self.Output]
+
+        basicOptList = [ # A list of options and/or flags that don't require any special manipulation
+            # If a third element exists, the option is a flag and doesn't require a parameter
+            ['-i', self.Input],
+            ['-o', self.Output],
+            ['-m', self.IncludeChapters, True],
+            ['--detelecine', self.Detelecine, True],
+            ['--deinterlace', self.Deinterlace, True],
+            ['-s', self.SubtitleUse],
+            ['-q', self.Quality],
+            ['-E', self.AudioEncoder],
+            ['-r', self.FrameRate],
+            ['-l', self.Hieght],
+            ['-w', self.Width],
+            ['--keep-display-aspect', self.KeepAspectRatio, True],
+            ['--modulus', self.Modulus],
+            ['--x264-preset', self.x264Preset],
+            ['--x264-tune', self.x264Tune],
+            ['-x', self.x264opts]]
+        for opt in basicOptList:
+            if opt[1]:
+                if len(opt) == 2:
+                    retArray += [opt[0], opt[1]]
+                else:
+                    retArray += [opt[0]]
         if self.Crop:
             retArray += ['--crop', ':'.join(self.Crop)]
-        if self.Detelecine:
-            retArray += ['--detelecine']
-        if self.Deinterlace:
-            retArray += ['--deinterlace']
-        if self.IncludeChapters:
-            retArray += ['-m']
         if self.AudioUse:
-            retArray += ['-a', ','.join(self.AudioUse)]
+            retArray += ['-a', self.AudioUse]
         if self.Title:
             if self.Title == HandBrakeOptions.MAIN_FEATURE:
                 retArray += [HandBrakeOptions.MAIN_FEATURE]
             else:
                 retArray += ['-t', self.Title]
-        if self.SubtitleUse:
-            retArray += ['-s', self.SubtitleUse]
-        if self.Quality:
-            retArray += ['-q', self.Quality]
         if self.isPreview and not self.Duration:
             retArray += ["--start-at", "duration:400", "--stop-at", "duration:30"]
         elif self.Duration:
             retArray += ["--start-at", "duration:%s" % self.Duration[0], "--stop-at", "duration:%s" % self.Duration[1]]
-        if self.AudioEncoder:
-            retArray += ['-E', self.AudioEncoder]
-        if self.FrameRate:
-            retArray += ['-r', self.FrameRate]
         if self.Anamorphic:
             retArray += ['--%s-anamorphic' % self.Anamorphic.lower()]
-        if self.x264Preset:
-            retArray += ['--x264-preset', self.x264Preset]
-        if self.x264Tune:
-            retArray += ['--x264-tune', self.x264Tune]
-        if self.x264opts:
-            retArray += ['-x', self.x264opts]
         retArray += ['-e', 'x264']
         if self.AddtlOpts:
             retArray += self.AddtlOpts.split(' ') # Can't handle quotes for right now

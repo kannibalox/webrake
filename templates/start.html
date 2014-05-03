@@ -13,21 +13,24 @@
           <option value="25">25</option>
           <option value="29.97">29.97</option>
           </select></td><tr>
-    <tr><td>Anamorphic</td><td><select id="Anamorphic" name="Anamorphic">
+    <tr><td>Resolution:</td><td>w:<input type="text" id="Width" name="Width" size="4"/> x h:<input type="text" id="Height" name="Hieght" size="4"/></td></tr>
+    <tr><td>Anamorphic:</td><td><select id="Anamorphic" name="Anamorphic">
           <option value="Strict">Strict</option>
 	  <option value="Custom">Custom</option>
 	  <option value="Loose">Loose</option>
 	  </select></td><tr>
+    <tr><td>Keep Aspect Ration</td><td><input type="checkbox" id="KeepAspectRatio" name="KeepAspectRatio"/></td></tr>
     <tr><td>x264 Presets:</td><td><select id="x264Preset" name="x264Preset">
 	  {% for p in presets %}
 	  <option value="{{ p }}">{{ p }}</option>
 	  {% endfor %}
     </td></tr>
+    <tr><td>Modulus:</td><td><input type="text" id="Modulus" name="Modulus" size="4"/></td></tr>
     <tr><td>Crop:</td><td></td></tr>
-    <tr><td class="right">Top</td><td><input type="text" size="3" id="CropTop" name="Crop"/></td></tr>
-    <tr><td class="right">Bottom</td><td><input type="text" size="3" id="CropBottom" name="Crop"/></td></tr>
-    <tr><td class="right">Left</td><td><input type="text" size="3" id="CropLeft" name="Crop"/></td></tr>
-    <tr><td class="right">Right</td><td><input type="text" size="3" id="CropRight" name="Crop"/></td></tr>
+    <tr><td class="right">Top:</td><td><input type="text" size="3" id="CropTop" name="Crop"/></td></tr>
+    <tr><td class="right">Bottom:</td><td><input type="text" size="3" id="CropBottom" name="Crop"/></td></tr>
+    <tr><td class="right">Left:</td><td><input type="text" size="3" id="CropLeft" name="Crop"/></td></tr>
+    <tr><td class="right">Right:</td><td><input type="text" size="3" id="CropRight" name="Crop"/></td></tr>
     <tr><td>Quality (CRF):</td><td><input type="text" id="Quality" name="Quality"></td></tr>
     <tr><td>Audio Channels:</td><td><input type="text" id="AudioUse" name="AudioUse"></td></tr>
     <tr><td>Audio Transfer Method:</td><td><input type="Text" id="AudioEncoder" name="AudioEncoder"/></td></tr>
