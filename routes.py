@@ -5,7 +5,7 @@ import Jobs
 import HandBrakeCLI
 
 from time import sleep
-import simplejson, json
+import json
 import glob
 import os
 import urllib2

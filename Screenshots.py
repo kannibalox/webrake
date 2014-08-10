@@ -1,5 +1,6 @@
 import subprocess
 import os
+import os.path
 import shutil
 import json
 import Globals
@@ -10,7 +11,7 @@ class Screenshots:
         self.numScreenshots = numScreenshots
         self.ID = actionID
         self.outDir = outDir
-        self.FilePath = json.loads(Globals.db.query("SELECT arguments FROM job where ID = ?", (self.ID,), one=True)['arguments'])['Output']
+        self.FilePath = os.path.join(ourDir, json.loads(Globals.db.query("SELECT arguments FROM job where ID = ?", (self.ID,), one=True)['arguments'])['Output'])
 
     def takeScreenshot(self, time="10"):
         args = [ "mplayer", "-ss", str(time), "-vo", "png:z=9", "-frames", "1", "-vf", "scale=0:0", "-nosound", "-nosub", "-nolirc", self.FilePath ]

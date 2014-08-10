@@ -4,13 +4,14 @@ import Globals
 import Screenshots
 import Config
 
-import simplejson, json
+import json
 import glob
 import multiprocessing
 import time
 import logging
 import shutil
 import os
+import os.path
 import fcntl
 import select
 import re
@@ -26,6 +27,9 @@ class Job:
             Globals.Log.debug("Added job " + str(self.id))
         elif jobID:
             self.load(jobID)
+        self.workDirectory = os.path.join(Config.JobsDirectory, str(self.id), '')
+        if not os.path.exists(self.workDirectory):
+            os.mkdir(self.workDirectory)
 
     def load(self, jobID):
         self.id = jobID
@@ -49,10 +53,7 @@ class Job:
             return
         timeStart = time.time()
         savedPath = os.getcwd()
-        outPath = "static/jobs/" + str(self.id) + "/"
-        if not os.path.exists(outPath):
-            os.mkdir(outPath)
-        os.chdir(outPath)        
+        os.chdir(self.workDirectory) 
         try:
             self.jobLog = logging.getLogger("WebRake.Job" + str(self.id))
             self.setStatus('Initializing')
@@ -116,8 +117,7 @@ class Job:
                 f.write(line)
 
     def finish(self):
-        outDir = "static/jobs/" + str(self.id) + "/"
-        S = Screenshots.Screenshots(self.id, outDir)
+        S = Screenshots.Screenshots(self.id, self.workDirectory)
         S.takeAllPreviewScreenshots()
 
 class JobManager:
@@ -136,15 +136,14 @@ class JobManager:
             j.setStatus("Interrupted")
 
     def exportJob(self, jobID):
-        path = "static/jobs/" + str(jobID) + '/' + json.loads(Globals.db.query("SELECT arguments FROM job WHERE id = (?)", (jobID,), True)['arguments'])['Output']
+        path = os.path.join(self.workDirectory, json.loads(Globals.db.query("SELECT arguments FROM job WHERE id = (?)", (jobID,), True)['arguments'])['Output'])
         shutil.move(path, Config.ExportDirectory)
 
     def removeJob(self, jobID):
         job = Job(jobID=jobID)
         job.setStatus("Deleted")
-        static_dir = "static/jobs/" + str(jobID)
         try:
-            shutil.rmtree(static_dir)
+            shutil.rmtree(self.workDirectory)
         except OSError:
             pass
 
@@ -168,9 +167,8 @@ class JobManager:
     def purgeJob(self, jobID):
         self.Log.info("Purging job %i" % jobID)
         job = Job(jobID=jobID)
-        static_dir = "static/jobs/" + str(jobID)
-        images = glob.glob(static_dir + '/*.png');
-        videos = glob.glob(static_dir + '/*.mkv');
+        images = glob.glob(os.path.join(self.workDirectory, '/*.png'));
+        videos = glob.glob(os.path.join(self.workDirectory, '/*.mkv'));
         if len(images) > 0:
             del(images[0]) # Save one image
         for i in images:

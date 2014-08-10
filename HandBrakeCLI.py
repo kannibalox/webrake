@@ -1,5 +1,5 @@
 import subprocess
-import simplejson, json
+import json
 
 class HandBrakeOptions:
     MAIN_FEATURE = "--main-feature"
