@@ -13,14 +13,14 @@
   {% endfor %}
   </table>
   {% for l in logs %}
-  <a href="{{ url_for('static', filename=l.path[7:]) }}">{{ l.name }}</a> <a class="log_toggle" href="#" id="show_{{ l.ID }}">(show)</a>
+  <a href="{{ url_for('jobStatic', jobID=job.id, filename=l.path) }}">{{ l.name }}</a> <a class="log_toggle" href="#" id="show_{{ l.ID }}">(show)</a>
   <div class="log_text" id="log_{{ l.ID }}" style="display: none;"><pre>{{ l.text|safe }}</pre></div></br>
   {% endfor %}
   {% for o in output %}
-  <a href="{{ url_for('static', filename=o[7:]) }}">{{ o }}</a></br>
+  <a href="{{ url_for('jobStatic', jobID=job.id, filename=o) }}">{{ o }}</a></br>
   {% endfor %}
   {% for i in images %}
-  <img src="{{ url_for('static', filename=i[7:]) }}"/>
+  <img src="{{ url_for('jobStatic', jobID=job.id, filename=i) }}"/>
   {% endfor %} 
 </div>
 {% endblock %}

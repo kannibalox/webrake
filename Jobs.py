@@ -143,7 +143,7 @@ class JobManager:
         job = Job(jobID=jobID)
         job.setStatus("Deleted")
         try:
-            shutil.rmtree(self.workDirectory)
+            shutil.rmtree(job.workDirectory)
         except OSError:
             pass
 
@@ -167,8 +167,8 @@ class JobManager:
     def purgeJob(self, jobID):
         self.Log.info("Purging job %i" % jobID)
         job = Job(jobID=jobID)
-        images = glob.glob(os.path.join(self.workDirectory, '/*.png'));
-        videos = glob.glob(os.path.join(self.workDirectory, '/*.mkv'));
+        images = glob.glob(os.path.join(job.workDirectory, '/*.png'));
+        videos = glob.glob(os.path.join(job.workDirectory, '/*.mkv'));
         if len(images) > 0:
             del(images[0]) # Save one image
         for i in images:

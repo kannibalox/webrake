@@ -1,4 +1,4 @@
-from flask import Flask, render_template, flash, Response, request, redirect, url_for, jsonify, Markup
+from flask import Flask, render_template, flash, Response, request, redirect, url_for, jsonify, Markup, send_from_directory
 import Globals
 import Config
 import Jobs
@@ -94,17 +94,23 @@ def jobShow(jobID):
       del job['args'][argument]
   job['id'] = jobID
   job['status'] = jobInfo['status']
-  static_dir = 'static/jobs/' + str(jobID)
-  images = glob.glob(static_dir + '/*.png')
-  output = glob.glob(static_dir + '/*.mkv')
-  log_paths = glob.glob(static_dir + '/*.log')
+  static_dir =  os.path.join(Config.JobsDirectory, str(jobID), '')
+  images = [os.path.basename(g) for g in glob.glob(os.path.join(static_dir, '*.png'))]
+  output = [os.path.basename(g) for g in glob.glob(os.path.join(static_dir, '*.mkv'))]
+  log_paths = [os.path.basename(g) for g in glob.glob(os.path.join(static_dir, '*.log'))]
   logs = []
   for l in log_paths:
-    with open(l) as log_file:
+    with open(os.path.join(static_dir, l)) as log_file:
       log_str = unicode(log_file.read().replace('\n', '<br/>'), errors='ignore')
     logs.append({'path': l, 'text': log_str, 'name': os.path.basename(l), 'ID': os.path.basename(l).replace('.', '_')})
   Globals.Log.debug("Showing job %s (%s arguments, %s images, %s files, %s logs)" % (jobID, len(json.loads(jobInfo['arguments'])), len(images), len(output), len(logs)))
   return render_template('job.html', images=images, output=output, logs=logs, job=job)
+
+@app.route('/job/static/<int:jobID>/<path:filename>')
+def jobStatic(jobID, filename):
+  if Config.JobsDirectory in filename:
+    return send_from_directory(os.path.dirname(filename), os.path.basename(filename))
+  return send_from_directory(os.path.join(Config.JobsDirectory, str(jobID)), filename)
 
 @app.route('/compare/<jobs>')
 def jobCompare(jobs):
@@ -112,7 +118,7 @@ def jobCompare(jobs):
   for j in jobs.split(','):
     jobInfo = {}
     jobInfo['args'] = json.loads(Globals.db.query('SELECT arguments FROM job WHERE ID=(?)', (j,), True)['arguments'])
-    static_dir = 'static/jobs/' + str(j)
+    static_dir =  os.path.join(Config.JobsDirectory, str(jobID), '')
     jobInfo['images'] = glob.glob(static_dir + '/*.png')
     jobInfo['id'] = j
     jobData.append(jobInfo)
