@@ -9,7 +9,8 @@ class Conf(object):
 def loadSettings():
     defaults = { 'PreviewLength': 30,
                  'WebHost': '127.0.0.1',
-                 'Database': 'WebRake.db'
+                 'Database': 'WebRake.db',
+                 'WebPrefix': ''
                  }
     conf = ConfigParser.RawConfigParser(defaults)
     conf.read('WebRake.cfg')
@@ -19,6 +20,7 @@ def loadSettings():
     globals()['SelectorRoot'] = conf.get('Main', 'SelectorRoot')
     globals()['ExportDirectory'] = conf.get('Main', 'ExportDirectory')
     globals()['JobsDirectory'] = conf.get('Main', 'JobsDirectory')
+    globals()['WebPrefix'] = conf.get('Main', 'WebPrefix')
 
 def get(item):
     return getattr(Conf, item)

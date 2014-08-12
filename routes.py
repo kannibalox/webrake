@@ -10,12 +10,14 @@ import glob
 import os
 import urllib2
 
-app = Flask(__name__)
-@app.route('/')
+prefix = Config.WebPrefix
+app = Flask(__name__, static_url_path=prefix+"/static")
+
+@app.route(prefix + '/')
 def index():
   return redirect(url_for('home'))
 
-@app.route('/queue')
+@app.route(prefix + '/queue')
 def home():
   num_items = Globals.db.query('select COUNT(*) from job')[0]['COUNT(*)']
   page = request.args.get('page')
@@ -32,7 +34,7 @@ def home():
     i['status'] = i['status'].split(':', 1)
   return render_template('index.html', jobs=items, page=page, last_page=last_page)
 
-@app.route('/start')
+@app.route(prefix + '/start')
 def new():
   copy_id = request.args.get('copy')
   if copy_id is None:
@@ -40,7 +42,7 @@ def new():
   x264Presets = "ultrafast/superfast/veryfast/faster/fast/medium/slow/slower/veryslow/placebo".split('/') # I'm a lazy bastard
   return render_template('start.html', copyJob=copy_id, presets=x264Presets, selectorRoot = Config.SelectorRoot)
 
-@app.route('/dirlist', methods=['POST'])
+@app.route(prefix + '/dirlist', methods=['POST'])
 def dirlist():
   dirreq = urllib2.unquote(dict(request.form)['dir'][0])
   r=['<ul class="jqueryFileTree" style="display: none;">']
@@ -62,7 +64,7 @@ def dirlist():
   r.append('</ul>')
   return ''.join(r)
 
-@app.route('/launch', methods=['POST'])
+@app.route(prefix + '/launch', methods=['POST'])
 def launch():
   hbo = HandBrakeCLI.HandBrakeOptions()
   hbo.setDefaults()
@@ -84,7 +86,7 @@ def launch():
   Jobs.Manager.addJob(hbo)
   return redirect(url_for('home'))
 
-@app.route('/job/<int:jobID>')
+@app.route(prefix + '/job/<int:jobID>')
 def jobShow(jobID):
   jobInfo = Globals.db.query('SELECT * FROM job WHERE ID=(?)', (jobID,), True)
   job = {}
@@ -106,13 +108,13 @@ def jobShow(jobID):
   Globals.Log.debug("Showing job %s (%s arguments, %s images, %s files, %s logs)" % (jobID, len(json.loads(jobInfo['arguments'])), len(images), len(output), len(logs)))
   return render_template('job.html', images=images, output=output, logs=logs, job=job)
 
-@app.route('/job/static/<int:jobID>/<path:filename>')
+@app.route(prefix + '/job/static/<int:jobID>/<path:filename>')
 def jobStatic(jobID, filename):
   if Config.JobsDirectory in filename:
     return send_from_directory(os.path.dirname(filename), os.path.basename(filename))
   return send_from_directory(os.path.join(Config.JobsDirectory, str(jobID)), filename)
 
-@app.route('/compare/<jobs>')
+@app.route(prefix + '/compare/<jobs>')
 def jobCompare(jobs):
   jobData = []
   for j in jobs.split(','):
@@ -139,7 +141,7 @@ def jobCompare(jobs):
 
   return render_template('compare.html', jobData=Markup(json.dumps(jobData)))
 
-@app.route('/job/<int:jobID>/json')
+@app.route(prefix + '/job/<int:jobID>/json')
 def jobJSON(jobID):
   job = {}
   if jobID == 0:
@@ -162,32 +164,32 @@ def jobJSON(jobID):
   job['id'] = jobID
   return jsonify(job)
 
-@app.route('/remove/<int:jobID>')
+@app.route(prefix + '/remove/<int:jobID>')
 def removeJob(jobID):
   Jobs.Manager.removeJob(jobID)
   return redirect(url_for('home'))
 
-@app.route('/export/<int:jobID>')
+@app.route(prefix + '/export/<int:jobID>')
 def exportJob(jobID):
   Jobs.Manager.exportJob(jobID)
   return redirect(url_for('jobShow', jobID=jobID))
 
-@app.route('/finalize/<int:jobID>')
+@app.route(prefix + '/finalize/<int:jobID>')
 def finalizeJob(jobID):
   Jobs.Manager.finalizeJob(jobID)
   return redirect(url_for('home'))
 
-@app.route('/purge/<int:jobID>')
+@app.route(prefix + '/purge/<int:jobID>')
 def purgeJob(jobID):
   Jobs.Manager.purgeJob(jobID)
   return redirect(url_for('jobShow', jobID=jobID))
 
-@app.route('/stop/<int:jobID>')
+@app.route(prefix + '/stop/<int:jobID>')
 def stopJob(jobID):
   Jobs.Manager.stop(jobID)
   return redirect(url_for('jobShow', jobID=jobID))
   
-@app.route('/shutdown', methods=['POST'])
+@app.route(prefix + '/shutdown', methods=['POST'])
 def shutdown():
   shutdown_server()
   return 'Server shutting down...'
