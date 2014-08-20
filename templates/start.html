@@ -51,7 +51,7 @@
 <script src="static/js/jqueryFileTree.js"></script>
 <script type="text/javascript">
 var copyJobID = {{ copyJob }};
-$.getJSON('job/' + copyJobID + '/json', function(data) {
+$.getJSON('{{ url_for('jobJSON', jobID=copyJob) }}', function(data) {
   $.each(data['args'], function(arg, val) {
     elem = $('#' + arg);
     if (elem.is(':checkbox')) {
@@ -95,7 +95,7 @@ $.getJSON('job/' + copyJobID + '/json', function(data) {
   });
   $('#file_selector').fileTree({ 
     root: '{{ selectorRoot }}', 
-    script: '/dirlist',
+    script: '{{ url_for('dirlist') }}',
     expandSpeed: -1, 
     collapseSpeed: -1},
     function(file) {
