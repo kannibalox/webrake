@@ -55,7 +55,7 @@ $('#CompareAll').click(function () {
   $('#queue input:checked').each(function() {
     j.push(this.value);
   });
-  window.location.href = '/compare/' + j.sort().join(',');
+  window.location.href = '{{ url_for('jobCompare', jobs='') }}' + j.sort().join(',');
 });
 </script>
 {% endblock %}

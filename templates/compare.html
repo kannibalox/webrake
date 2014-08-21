@@ -29,7 +29,7 @@ function loadJob(j) {
   table += '</table>';
   $('#jobInfo').html(table);
   $.each(data['images'], function(index, value) {
-    $('#comp' + index).attr('src', '/' + data['images'][index]);
+    $('#comp' + index).attr('src', "{{ url_for('jobStatic', jobID='999', filename='filename') }}".replace('999', data['id']).replace('filename', value));
   });
   return j;
 }

@@ -111,13 +111,13 @@ def jobStatic(jobID, filename):
   return send_from_directory(os.path.join(Config.JobsDirectory, str(jobID)), filename)
 
 @app.route('/compare/<jobs>')
-def jobCompare(jobs):
+def jobCompare(jobs=None):
   jobData = []
   for j in jobs.split(','):
     jobInfo = {}
     jobInfo['args'] = json.loads(Globals.db.query('SELECT arguments FROM job WHERE ID=(?)', (j,), True)['arguments'])
-    static_dir =  os.path.join(Config.JobsDirectory, str(jobID), '')
-    jobInfo['images'] = glob.glob(static_dir + '/*.png')
+    static_dir =  os.path.join(Config.JobsDirectory, str(j), '')
+    jobInfo['images'] = [os.path.basename(i) for i in glob.glob(static_dir + '/*.png')]
     jobInfo['id'] = j
     jobData.append(jobInfo)
   allKeys = set()
