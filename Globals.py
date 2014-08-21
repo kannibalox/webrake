@@ -22,6 +22,12 @@ class Database:
             conn.executescript(qry)
             conn.commit()
             conn.close()
+        else:
+            self.__fix_interrupted()
+
+    def __fix_interrupted(self):
+        self.update("UPDATE job SET status='Interrupted' WHERE status LIKE 'Encoding%'")
+        
 
     def query(self, query, args=(), one=False):
         conn = sqlite3.connect(self.dbFile)
