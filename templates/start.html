@@ -2,7 +2,7 @@
 {% block content %}
   <div class="page_content">
     <h2>Start New</h2>
-    <form id="argForm" action="/launch" method="post">
+    <form id="argForm" action="{{ url_for('launch') }}" method="post">
     <table>
     <tr><td>Input:</td><td><input type="text" id="Input" name="Input"><button type="button" id="show_selector">Browse</button><div id="file_selector"></div></td></tr>
     <tr><td>Output:</td><td><input type="text" id="Output" name="Output"></td></tr>
