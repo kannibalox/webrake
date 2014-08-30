@@ -15,7 +15,7 @@ app = Flask(__name__)
 @app.route('/')
 @app.route('/queue')
 def home():
-  num_items = Globals.db.query('select COUNT(*) from job')[0]['COUNT(*)']
+  num_items = Globals.db.query('select COUNT(*) from job', one=True)['COUNT(*)']
   page = request.args.get('page')
   last_page = num_items/25
   if page is None or page < 0:
