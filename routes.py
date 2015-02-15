@@ -160,6 +160,12 @@ def jobJSON(jobID):
   job['id'] = jobID
   return jsonify(job)
 
+@app.route('/multi/remove/<jobs>')
+def multiJobRemove(jobs=None):
+  for j in jobs.split(','):
+    Jobs.Manager.removeJob(j)
+  return redirect(url_for('home'))
+
 @app.route('/remove/<int:jobID>')
 def removeJob(jobID):
   Jobs.Manager.removeJob(jobID)

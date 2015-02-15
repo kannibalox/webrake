@@ -15,7 +15,7 @@
     <a href="#"><img title="Details" src="{{ url_for('static', filename='images/icons/magnifier.png') }}"/></a>
     <a href="#"><img title="Copy" src="{{ url_for('static', filename='images/icons/bullet_go.png') }}"/></a>
     <a href="#"><img title="Purge" src="{{ url_for('static', filename='images/icons/bin_empty.png') }}"/></a>
-    <a href="#"><img title="Delete" src="{{ url_for('static', filename='images/icons/cross.png') }}"/></a>
+    <a href="#"><img title="Delete" id="RemoveAll" src="{{ url_for('static', filename='images/icons/cross.png') }}"/></a>
     <a href="#"><img title="Compare" id="CompareAll" src="{{ url_for('static', filename='images/icons/layers.png') }}"></a>
     <br/><br/>
 
@@ -49,6 +49,13 @@
 <script type="text/javascript">
 $('#checkall').click (function () {
   $(':checkbox[name=checkJob]').prop('checked', this.checked);
+});
+$('#RemoveAll').click(function () {
+  var j = [];
+  $('#queue input:checked').each(function() {
+    j.push(this.value);
+  });
+  window.location.href = '{{ url_for('multiJobRemove', jobs='') }}' + j.sort().join(',');
 });
 $('#CompareAll').click(function () {
   var j = [];
