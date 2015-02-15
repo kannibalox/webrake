@@ -1,49 +1,162 @@
 {% extends "layout.html" %}
 {% block content %}
   <div class="page_content">
+    {% if copyJob != 0 %}
+    <h2>Modify Job {{ copyJob }}</h2>
+    {% else %}
     <h2>Start New</h2>
-    <form id="argForm" action="{{ url_for('launch') }}" method="post">
-    <table>
-    <tr><td>Input:</td><td><input type="text" id="Input" name="Input"><button type="button" id="show_selector">Browse</button><div id="file_selector"></div></td></tr>
-    <tr><td>Output:</td><td><input type="text" id="Output" name="Output"></td></tr>
-    <tr><td>Title:</td><td><input type="text" id="Title" name="Title"></td><td>Main Feature: <input type="checkbox" id="mainFeature" name="mainFeature"/></tr></tr>
-    <tr><td>x264 Opts.:</td><td><input type="text" id="x264opts" name="x264opts"></td></tr>
-    <tr><td>Frame Rate:</td><td><select id="FrameRate" name="FrameRate">
-          <option value="23.976">23.976</option>
-          <option value="25">25</option>
-          <option value="29.97">29.97</option>
-          </select></td><tr>
-    <tr><td>Resolution:</td><td>w:<input type="text" id="Width" name="Width" size="4"/> x h:<input type="text" id="Height" name="Hieght" size="4"/></td></tr>
-    <tr><td>Anamorphic:</td><td><select id="Anamorphic" name="Anamorphic">
-          <option value="Strict">Strict</option>
-	  <option value="Custom">Custom</option>
-	  <option value="Loose">Loose</option>
-	  </select></td><tr>
-    <tr><td>Keep Aspect Ratio</td><td><input type="checkbox" id="KeepAspectRatio" name="KeepAspectRatio"/></td></tr>
-    <tr><td>x264 Presets:</td><td><select id="x264Preset" name="x264Preset">
-	  {% for p in presets %}
-	  <option value="{{ p }}">{{ p }}</option>
-	  {% endfor %}
-    </td></tr>
-    <tr><td>Modulus:</td><td><input type="text" id="Modulus" name="Modulus" size="4"/></td></tr>
-    <tr><td>Crop:</td><td></td></tr>
-    <tr><td class="right">Top:</td><td><input type="text" size="3" id="CropTop" name="Crop"/></td></tr>
-    <tr><td class="right">Bottom:</td><td><input type="text" size="3" id="CropBottom" name="Crop"/></td></tr>
-    <tr><td class="right">Left:</td><td><input type="text" size="3" id="CropLeft" name="Crop"/></td></tr>
-    <tr><td class="right">Right:</td><td><input type="text" size="3" id="CropRight" name="Crop"/></td></tr>
-    <tr><td>Quality (CRF):</td><td><input type="text" id="Quality" name="Quality"></td></tr>
-    <tr><td>Audio Channels:</td><td><input type="text" id="AudioUse" name="AudioUse"></td></tr>
-    <tr><td>Audio Transfer Method:</td><td><input type="Text" id="AudioEncoder" name="AudioEncoder"/></td></tr>
-    <tr><td>Preview (short duration):</td><td><input type="checkbox" id="isPreview" name="isPreview"></td></tr>
-    <tr><td>Include chapters:</td><td><input type="checkbox" id="IncludeChapters" name="IncludeChapters"></td></tr>
-    <tr><td>Deinterlace:</td><td><input type="checkbox" id="Deinterlace" name="Deinterlace"></td></tr>
-    <tr><td>Detelecine:</td><td><input type="checkbox" id="Detelecine" name="Detelecine"></td></tr>
-    <tr><td>Start Duration:</td><td><input type="text" id="StartDuration" name="Duration"></td></tr>
-    <tr><td>End Duration:</td><td><input type="text" id="EndDuration" name="Duration"></td></tr>
-    <tr><td>Other Parameters:</td><td><input type="text" id="AddtlOpts" name="AddtlOpts"></td></tr>
-    </table>
-    <input type="submit" value="Start Encode" />
+    {% endif %}
+    <form id="argForm" action="{{ url_for('launch') }}" method="post" class="pure-form pure-form-stacked">
+      <fieldset>
+        <legend>Destination</legend>
+        <div class="pure-g">
+          <div class="pure-u-1 pure-u-md-1-3">
+            <input type="text" id="Output" name="Output"/>
+          </div>          
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend>Source</legend>
+        <div class="pure-g">
+          <div class="pure-u-1 pure-u-md-1-3">
+            <label for="Input">Input</label>
+            <input type="text" id="Input" name="Input" style="display:inline;"/>
+            <button type="button" id="show_selector" class="pure-button">Browse</button>
+            <div id="file_selector"></div>
+          </div>
+          <div class="pure-u-1 pure-u-md-2-3">
+            <label for="Title">Title Track</label>
+            <input type="text" id="Title" name="Title"/>
+          </div>
+          <div class="pure-u-1 pure-u-md-1-3">
+            <label for="StartDuration">Start Duration</label>
+            <input type="text" id="StartDuration" name="Duration"/>
+          </div>
+          <div class="pure-u-1 pure-u-md-1-3">
+            <label for="EndDuration">End Duration</label>
+            <input type="text" id="EndDuration" name="Duration"/>
+          </div>
+        </div>
+        <label for="mainFeature" class="pure-checkbox">
+          <input type="checkbox" id="mainFeature" name="mainFeature"/> Use main feature
+        </label>        
+        <label for="IncludeChapters" class="pure-checkbox">
+          <input type="checkbox" id="IncludeChapters" name="IncludeChapters"/> Include chapters
+        </label>        
+        <label for="isPreview" class="pure-checkbox">
+          <input type="checkbox" id="isPreview" name="isPreview"/> Preview (short duration)
+        </label>        
+      </fieldset>
+      <fieldset>
+        <legend>x264 Options</legend>
+        <div class="pure-g">
+          <div class="pure-u-1 pure-u-md-1-3">
+            <label for="Quality">Quality (CRF)</label>
+            <input type="text" id="Quality" name="Quality"/>
+          </div>
+          <div class="pure-u-1 pure-u-md-1-3">
+            <label for="x264opts">Parameters</label>
+            <input type="text" id="x264opts" name="x264opts"/>
+          </div>
+          <div class="pure-u-1 pure-u-md-1-3">
+            <label for="x264Preset">Presets:</label>
+            <select id="x264Preset" name="x264Preset">
+	      {% for p in presets %}
+	      <option value="{{ p }}">{{ p }}</option>
+	      {% endfor %}
+            </select>
+          </div>
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend>Video Options</legend>
+        <div class="pure-g">
+          <div class="pure-u-1 pure-u-md-1-3">
+            <label for="FrameRate">Frame Rate</label>
+            <select id="FrameRate" name="FrameRate">
+              <option value="23.976">23.976</option>
+              <option value="25">25</option>
+              <option value="29.97">29.97</option>
+            </select>
+          </div>
+          <div class="pure-u-1 pure-u-md-1-3">
+            <labeL>Resolution</label>
+            <span style="display:inline;">
+              w:<input type="text" id="Width" name="Width" size="4" style="display:inline;"/> x h:<input type="text" id="Height" name="Hieght" size="4" style="display:inline;"/>
+            </span>
+          </div>
+          <div class="pure-u-1 pure-u-md-1-3">
+            <label for="Modulus">Modulus</label>
+            <input type="text" id="Modulus" name="Modulus" size="4"/>
+          </div>
+          <div class="pure-u-1 pure-u-md-1-3">
+            <label for="Anamorphic">Anamorphic</label>
+            <select id="Anamorphic" name="Anamorphic">
+              <option value="Strict">Strict</option>
+              <option value="Custom">Custom</option>
+              <option value="Loose">Loose</option>
+            </select>
+          </div>
+          <div class="pure-u-1 pure-u-md-1-3">
+            <label for="KeepAspectRatio">Preserve Aspect Ratio</label>
+          <input type="checkbox" id="KeepAspectRatio" name="KeepAspectRatio"/>
+          </div>
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend>Video Options - Crop</legend>
+        <div class="pure-g">
+          <div class="pure-u-1 pure-u-md-1-12">
+            <label for="CropTop">Top:</label>
+            <input type="text" size="3" id="CropTop" name="Crop"/>
+          </div>
+          <div class="pure-u-1 pure-u-md-1-12">
+            <label for="CropBottom">Bottom:</label>
+            <input type="text" size="3" id="CropBottom" name="Crop"/>
+          </div>
+          <div class="pure-u-1 pure-u-md-1-12">
+            <label for="CropLeft">Left:</label>
+            <input type="text" size="3" id="CropLeft" name="Crop"/>
+          </div>
+          <div class="pure-u-1 pure-u-md-7-12">
+            <label for="CropRight">Right:</label>
+            <input type="text" size="3" id="CropRight" name="Crop"/>
+          </div>
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend>Audio Options</legend>
+        <div class="pure-g">
+          <div class="pure-u-1 pure-u-md-1-3">
+            <label for="AudioUse">Tracks</label>
+            <input type="text" id="AudioUse" name="AudioUse"/>
+          </div>
+          <div class="pure-u-1 pure-u-md-1-3">
+            <label for="AudioEncoder">Encoder</label>
+            <input type="Text" id="AudioEncoder" name="AudioEncoder"/>
+          </div>
+        </div>
+      </fieldset>
+      <fieldset class="pure-form-aligned">
+        <legend>Filters</legend>
+        <div class="pure-control-group">
+          <label for="Deinterlace">Deinterlace</label>
+          <input type="checkbox" id="Deinterlace" name="Deinterlace">
+        </div>
+        <div class="pure-control-group">
+          <label for="Detelecine">Detelecine</label>
+          <input type="checkbox" id="Detelecine" name="Detelecine">
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend>Other Parameters</legend>
+        <input type="text" id="AddtlOpts" name="AddtlOpts">
+      </fieldset>
+      <br/>
+      <input type="submit" value="Start Encode" class="pure-button"/>
     </form>
+    <table>
+    </table>
   </div>
 {% endblock %}
 {% block script %}
@@ -61,6 +174,7 @@ $.getJSON('{{ url_for('jobJSON', jobID=copyJob) }}', function(data) {
   });
   if ('Title' in data['args']) {
     if (data['args']['Title'] == "--main-feature") {
+      $('#Title').attr("disabled", "disabled");
       $('#mainFeature').attr('checked', true);
     }
   }

@@ -4,56 +4,70 @@ body {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   color: #444;
 }
+
 /*
  * Create dark grey header with a white logo
  */
-#header {
+
+.webrake-header {
   background-color: #003366;
   width: 100%;
-#  opacity: .9;
   margin-bottom: 10px;
 }
-#header h1.logo a {
+
+.webrake-header h1.logo a {
   margin: 0;
   color: #fff;
   text-decoration: none;
- # text-transform: uppercase;
   float: left;
 }
 
-#header ul {
-  list-style-type: none;
-  list-style-image: none;
-}
-
-#header ul li {
-  display: inline;
-}
-
-#header ul li a {
+.webrake-header ul li a {
   color: #fff;
   text-decoration: none;
 }
 
-#header ul li a:hover {
+.webrake-header ul li a:hover {
   text-decoration: underline;
+  background-color: #004477;
 }
 
-#queue {
-  border-collapse: collapse;
+.button-pagination {
+  font-size: 70%;
+  margin-right: -6px;
+}
+
+div.center, .center a {
+  text-align: center;
   margin-left:auto;
   margin-right:auto;
 }
 
-#queue td, th {
-  padding: 3px;
+table, thead {
+  border: 0px !important;
+  border-collapse: collapse;
+  margin-left:auto;
+  margin-right:auto;
+  background-color: #CC9 !important;
 }
 
-#queue th {
+td, th {
+  border: 0px !important;
+}
+
+th:first-child {
+  border-radius: 5px 0 0 0;
+}
+
+th:last-child {
+  border-radius: 0 5px 0 0;
+}
+
+th {
   background-color: #acac79;
 }
 
-#queue tr.odd {
+tr.webrake-odd {
   background-color: #bcbc89;
 }
 
@@ -65,11 +79,12 @@ body {
   color: #fff;
   text-decoration: none;
 }
+
 /*
  * Center the body content
  */
+
 .container {
-#  width: 940px;
   margin: 0 30px 0 30px;
 }
 div.page_content {
@@ -81,13 +96,11 @@ div.page_content {
 }
 h2 {
   font-size: 1.7em;
-#  margin-top: 40px;
   text-align: center;
   letter-spacing: -1px;
 }
+
 h3 {
-#  font-size: 1.7em;
-#  font-weight: 100;
   margin-top: 10px;
   text-align: center;
   letter-spacing: -1px;

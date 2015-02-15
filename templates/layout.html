@@ -2,17 +2,25 @@
 <html>
   <head>
     <title>WebRake</title>
+    <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.6.0-rc-1/pure-min.css">
+    <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.5.0/grids-responsive-min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/jqueryFileTree.css') }}">
     <script src="{{ url_for('static', filename='js/jquery-1.9.1.min.js') }}"></script>
   </head>
   <body>
-    <div id="header">
-      <h1 class="logo"><a href="{{ url_for('home') }}">WebRake</a></h1></br>
-      <ul>
-	<li><a href="{{ url_for('home') }}">Queue</a></li> | 
-	<li><a href="{{ url_for('new') }}">New Encode</a></li>
-      </ul>
+    <div class="webrake-header">
+      <div class="pure-menu">
+        <h1 class="logo"><a href="{{ url_for('home') }}">WebRake</a></h1>
+        <a href="#" class="custom-menu-toggle" id="toggle"><s class="bar"></s><s class="bar"></s></a>
+      </div>
+      <div class="pure-menu pure-menu-horizontal pure-menu-scrollable" id="tuckedMenu">
+        <div class="custom-menu-screen"></div>
+        <ul class="pure-menu-list">
+          <li class="pure-menu-item"><a href="{{ url_for('home') }}" class="pure-menu-link webrake-header-link">Queue</a></li>
+          <li class="pure-menu-item"><a href="{{ url_for('new') }}" class="pure-menu-link webrake-header-link">New Encode</a></li>
+        </ul>
+      </div>
     </div>
     <div class="container">
       {% block content %}

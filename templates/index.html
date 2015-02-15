@@ -2,47 +2,55 @@
 {% block content %}
   <div class="page_content">
     <h2>Jobs</h2>
-    <center>
-    Filter:
-    <select name="jobFilter" id="jobFilter">
-      <option>Active</option>
-      <option>All</option>
-      <option>Interrupted</option>
-      <option>Inactive</option>
-      <option>Failed</option>
-    </select>
-    Action All:
-    <a href="#"><img title="Details" src="{{ url_for('static', filename='images/icons/magnifier.png') }}"/></a>
-    <a href="#"><img title="Copy" src="{{ url_for('static', filename='images/icons/bullet_go.png') }}"/></a>
-    <a href="#"><img title="Purge" src="{{ url_for('static', filename='images/icons/bin_empty.png') }}"/></a>
-    <a href="#"><img title="Delete" id="RemoveAll" src="{{ url_for('static', filename='images/icons/cross.png') }}"/></a>
-    <a href="#"><img title="Compare" id="CompareAll" src="{{ url_for('static', filename='images/icons/layers.png') }}"></a>
+    <div class="pure-g">
+      <div class="pure-u-1-3"></div>
+      <div class="pure-u-1-3"><center>
+        Action All:
+        <a href="#"><img title="Details" src="{{ url_for('static', filename='images/icons/magnifier.png') }}"/></a>
+        <a href="#"><img title="Copy" src="{{ url_for('static', filename='images/icons/bullet_go.png') }}"/></a>
+        <a href="#"><img title="Purge" src="{{ url_for('static', filename='images/icons/bin_empty.png') }}"/></a>
+        <a href="#"><img title="Delete" id="RemoveAll" src="{{ url_for('static', filename='images/icons/cross.png') }}"/></a>
+        <a href="#"><img title="Compare" id="CompareAll" src="{{ url_for('static', filename='images/icons/layers.png') }}"></a>
+      </center></div>
+    </div>
     <br/><br/>
-
-    <a href="/queue">First</a>
-    <a href="/queue?page={{ page-1 }}">Prev</a>
-    <a href="/queue?page={{ page+1 }}">Next</a>
-    <a href="/queue?page={{ last_page }}">Last</a>
-    </center>
-
-    <table id="queue">
-    <tr><th>#</td><th><input type="checkbox" id="checkall"></th><th>Status</th><th>Input</th><th>Output</th><th>Actions</th></tr>
-    {% for j in jobs %}
-    <tr class="{{ loop.cycle('odd', 'even') }}">
-      <td>{{ j.id }}</td>
-      <td><input type="checkbox" name="checkJob" value="{{ j.id }}" class="checkJob"></td>
-      <td>{{ j.status.0 }}</br><div class="time">{{ j.status.1 }}</div></td>
-      <td>{{ j.Input }}</td>
-      <td>{{ j.Output }}</td>
-      <td>
-	<a href="{{ url_for('jobShow', jobID=j.id) }}"><img title="Details" src="{{ url_for('static', filename='images/icons/magnifier.png') }}"/></a>
-	<a href="{{ url_for('new') }}?copy={{ j.id }}"><img title="Copy" src="{{ url_for('static', filename='images/icons/bullet_go.png') }}"/></a>
-	<a href="{{ url_for('purgeJob', jobID=j.id) }}"><img title="Purge" src="{{ url_for('static', filename='images/icons/bin_empty.png') }}"/></a>
-	<a href="{{ url_for('removeJob', jobID=j.id) }}"><img title="Delete" src="{{ url_for('static', filename='images/icons/cross.png') }}"/></a>
-      </td>
-    </tr>
-    {% endfor %}
+      
+    <table id="queue" class="pure-table">
+      <thead>
+        <tr><th>#</td><th><input type="checkbox" id="checkall"/></th><th>Status</th><th>Input</th><th>Output</th><th>Actions</th></tr>
+      </thead>
+      <tbody>
+      {% for j in jobs %}
+      <tr class="{{ loop.cycle('webrake-odd', 'webrake-even') }}">
+        <td>{{ j.id }}</td>
+        <td><input type="checkbox" name="checkJob" value="{{ j.id }}" class="checkJob"></td>
+        <td>{{ j.status.0 }}</br><div class="time">{{ j.status.1 }}</div></td>
+        <td>{{ j.Input }}</td>
+        <td>{{ j.Output }}</td>
+        <td>
+	  <a href="{{ url_for('jobShow', jobID=j.id) }}"><img title="Details" src="{{ url_for('static', filename='images/icons/magnifier.png') }}"/></a>
+	  <a href="{{ url_for('new') }}?copy={{ j.id }}"><img title="Copy" src="{{ url_for('static', filename='images/icons/bullet_go.png') }}"/></a>
+	  <a href="{{ url_for('purgeJob', jobID=j.id) }}"><img title="Purge" src="{{ url_for('static', filename='images/icons/bin_empty.png') }}"/></a>
+	  <a href="{{ url_for('removeJob', jobID=j.id) }}"><img title="Delete" src="{{ url_for('static', filename='images/icons/cross.png') }}"/></a>
+        </td>
+      </tr>
+      {% endfor %}
+      </tbody>
     </table>
+
+    <div class="pure-g">
+      <div class="pure-u-1-3"></div>
+      <div class="pure-u-1-3">
+        <center>
+          <a href="/queue" class="pure-button button-pagination">&lt;&lt;</a>
+          <a href="/queue?page={{ page-1 }}" class="pure-button button-pagination">&lt;</a>
+          <a href="/queue?page={{ page+1 }}" class="pure-button button-pagination">&gt;</a>
+          <a href="/queue?page={{ last_page }}" class="pure-button button-pagination">&gt;&gt;</a>
+        </center>
+      </div>
+    </div>
+    <br/>
+
   </div>
 {% endblock %}
 {% block script %}

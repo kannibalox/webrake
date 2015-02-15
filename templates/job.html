@@ -2,18 +2,28 @@
 {% block content %}
 <div class="page_content">
   <h2>Job {{ job.id }} - {{ job.status }}</h2>
-  <a href="{{ url_for('new') }}?copy={{ job.id}}">[Copy]</a>
-  <a href="{{ url_for('purgeJob', jobID=job.id) }}">[Purge]</a>
-  <a href="{{ url_for('finalizeJob', jobID=job.id) }}">[Finalize]</a>
-  <a href="{{ url_for('exportJob', jobID=job.id) }}">[Export]</a>
-  <table>
-  <tr><th>Argument</th><th>Value</th></tr>
-  {% for a in job.args %}
-  <tr><td>{{ a }}</td><td>{{ job.args[a] }}</td></tr>
-  {% endfor %}
+  <div class="center">
+    <a class="pure-button" href="{{ url_for('new') }}?copy={{ job.id}}">Copy</a>
+    <a class="pure-button" href="{{ url_for('purgeJob', jobID=job.id) }}">Purge</a>
+    <a class="pure-button" href="{{ url_for('finalizeJob', jobID=job.id) }}">Finalize</a>
+    <a class="pure-button" href="{{ url_for('exportJob', jobID=job.id) }}">Export</a>
+  </div>
+  <br/>
+  <table class="pure-table">
+    <thead>
+      <tr><th>Argument</th><th>Value</th></tr>
+    </thead>
+    <tbody>
+      {% for a in job.args %}
+      <tr class="{{ loop.cycle('webrake-odd', 'webrake-even') }}">
+        <td>{{ a }}</td><td>{{ job.args[a] }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
   </table>
   {% for l in logs %}
-  <a href="{{ url_for('jobStatic', jobID=job.id, filename=l.path) }}">{{ l.name }}</a> <a class="log_toggle" href="#" id="show_{{ l.ID }}">(show)</a>
+  <a href="{{ url_for('jobStatic', jobID=job.id, filename=l.path) }}">{{ l.name }}</a>
+  <a class="log_toggle" href="#" id="show_{{ l.ID }}">(show)</a>
   <div class="log_text" id="log_{{ l.ID }}" style="display: none;"><pre>{{ l.text|safe }}</pre></div></br>
   {% endfor %}
   {% for o in output %}
