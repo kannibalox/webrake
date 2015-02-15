@@ -44,3 +44,6 @@ def run():
     routes.app.run(host='0.0.0.0', port=9000, debug=True, use_reloader=False, use_debugger=True)
     Globals.Log.info("Shut down web server")
     Globals.Log.info("Exiting...")
+
+if __name__ == '__main__':
+    run()
