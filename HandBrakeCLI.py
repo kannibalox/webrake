@@ -30,6 +30,7 @@ class HandBrakeOptions:
         self.x264Preset = ""
         self.x264Tune = ""
         self.Anamorphic = ""
+        self.DisplayWidth = ""
 
     # Set up sane x264 encoding defaults
     def setDefaults(self):
@@ -77,7 +78,8 @@ class HandBrakeOptions:
             ['--modulus', self.Modulus],
             ['--x264-preset', self.x264Preset],
             ['--x264-tune', self.x264Tune],
-            ['-x', self.x264opts]]
+            ['-x', self.x264opts],
+            ['--display-width', self.DisplayWidth]
         for opt in basicOptList:
             if opt[1]:
                 if len(opt) == 2:
