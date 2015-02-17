@@ -132,7 +132,7 @@ def jobStatic(jobID, filename):
         return send_from_directory(os.path.dirname(filename), os.path.basename(filename))
     return send_from_directory(os.path.join(Config.JobsDirectory, str(jobID)), filename)
 
-@app.route('/compare/<jobs>')
+@app.route('/multi/compare/<jobs>')
 def jobCompare(jobs=None):
     jobData = []
     for j in jobs.split(','):
