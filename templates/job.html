@@ -9,29 +9,39 @@
     <a class="pure-button" href="{{ url_for('exportJob', jobID=job.id) }}">Export</a>
   </div>
   <br/>
-  <table class="pure-table">
-    <thead>
-      <tr><th>Argument</th><th>Value</th></tr>
-    </thead>
-    <tbody>
-      {% for a in job.args %}
-      <tr class="{{ loop.cycle('webrake-odd', 'webrake-even') }}">
-        <td>{{ a }}</td><td>{{ job.args[a] }}</td>
-      </tr>
+  <div class="pure-g">
+    <div class="pure-u-1-2">
+      <h3>Arguments</h3>
+      <table class="pure-table">
+        <thead>
+          <tr><th>Argument</th><th>Value</th></tr>
+        </thead>
+        <tbody>
+          {% for a in job.args %}
+          <tr class="{{ loop.cycle('webrake-odd', 'webrake-even') }}">
+            <td>{{ a }}</td><td>{{ job.args[a] }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <div class="pure-u-1-2">
+      <h3>Logs</h3>
+      {% for l in logs %}
+      <a href="{{ url_for('jobStatic', jobID=job.id, filename=l.path) }}">{{ l.name }}</a>
+      <a class="log_toggle" href="#" id="show_{{ l.ID }}">(show)</a>
+      <div class="log_text" id="log_{{ l.ID }}" style="display: none;"><pre>{{ l.text|safe }}</pre></div><br/>
       {% endfor %}
-    </tbody>
-  </table>
-  {% for l in logs %}
-  <a href="{{ url_for('jobStatic', jobID=job.id, filename=l.path) }}">{{ l.name }}</a>
-  <a class="log_toggle" href="#" id="show_{{ l.ID }}">(show)</a>
-  <div class="log_text" id="log_{{ l.ID }}" style="display: none;"><pre>{{ l.text|safe }}</pre></div></br>
-  {% endfor %}
-  {% for o in output %}
-  <a href="{{ url_for('jobStatic', jobID=job.id, filename=o) }}">{{ o }}</a></br>
-  {% endfor %}
-  {% for i in images %}
-  <img src="{{ url_for('jobStatic', jobID=job.id, filename=i) }}"/>
-  {% endfor %} 
+      <h3>Files</h3>
+      {% for o in output %}
+      <a href="{{ url_for('jobStatic', jobID=job.id, filename=o) }}">{{ o }}</a><br/>
+      {% endfor %}
+      <h3>Screenshots</h3>
+      {% for i in images %}
+      <img src="{{ url_for('jobStatic', jobID=job.id, filename=i) }}"/>
+      {% endfor %}
+    </div>
+  </div>
 </div>
 {% endblock %}
 {% block script %}
