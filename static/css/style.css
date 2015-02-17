@@ -121,3 +121,7 @@ h3 {
   border-style: dotted;
   border-width: 1px;
 }
+
+#expandedx264 input {
+  display: inline;
+}

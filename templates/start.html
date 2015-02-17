@@ -54,17 +54,19 @@
             <label for="Quality">Quality (CRF)</label>
             <input type="text" id="Quality" name="Quality"/>
           </div>
-          <div class="pure-u-1 pure-u-md-1-3">
-            <label for="x264opts">Parameters</label>
-            <input type="text" id="x264opts" name="x264opts"/>
-          </div>
-          <div class="pure-u-1 pure-u-md-1-3">
+          <div class="pure-u-1 pure-u-md-2-3">
             <label for="x264Preset">Presets:</label>
             <select id="x264Preset" name="x264Preset">
 	      {% for p in presets %}
 	      <option value="{{ p }}">{{ p }}</option>
 	      {% endfor %}
             </select>
+          </div>
+          <div class="pure-u-1 pure-u-md-1-3">
+            <label for="x264opts">Parameters <a href="#" id="expandx264">(+)</a></label>
+            <input type="text" id="x264opts" name="x264opts"/>
+          </div>
+          <div class="pure-u-md-1-1 pure-u-1" id="expandedx264" style="display:none;">
           </div>
         </div>
       </fieldset>
@@ -152,8 +154,32 @@
         <legend>Other Parameters</legend>
         <input type="text" id="AddtlOpts" name="AddtlOpts">
       </fieldset>
+      <fieldset>
+        <legend>Queue Multiple</legend>
+        <div class="pure-g">
+          <div class="pure-u-1 pure-u-md-1-4">
+            <label for="StepVar">Variable</label>
+            <select name="StepVar" id="StepVar">
+              <option value="Quality">CRF</option>
+            </select>
+          </div>
+          <div class="pure-u-1 pure-u-md-1-4">
+            <label for="StartIntv">Start</label>
+            <input type="text" id="StartIntv" name="StartIntv"/>
+          </div>
+          <div class="pure-u-1 pure-u-md-1-4">
+            <label for="EndIntv">End</label>
+            <input type="text" id="EndIntv" name="EndIntv"/>
+          </div>
+          <div class="pure-u-1 pure-u-md-1-4">
+            <label for="StepIntv">Step</label>
+            <input type="text" id="StepIntv" name="StepIntv"/>
+          </div>
+        </div>
+        <input type="submit" name="action" value="Start Multiple Encodes" class="pure-button"/>
+      </fieldset>
       <br/>
-      <input type="submit" value="Start Encode" class="pure-button"/>
+      <input type="submit" name="action" value="Start Encode" class="pure-button"/>
     </form>
     <table>
     </table>
@@ -188,24 +214,6 @@ $.getJSON('{{ url_for('jobJSON', jobID=copyJob) }}', function(data) {
     $('#CropLeft').val(data['args']['Crop'][2]);
     $('#CropRight').val(data['args']['Crop'][3]);
   }
-  $('#mainFeature').change(function () {
-    if($(this).is(":checked")) {
-       $('#Title').attr("disabled", "disabled");
-       $('#Title').val('--main-feature');
-    } else {
-       $('#Title').removeAttr("disabled");
-       $('#Title').val('');
-    }
-  });
-  $('#file_selector').hide();
-  $('#show_selector').click(function() { 
-    $('#file_selector').toggle();
-    if ($(this).text() == "Browse") {
-      $(this).text("Done");
-    } else {
-      $(this).text("Browse");
-    }
-  });
   $('#file_selector').fileTree({ 
     root: '{{ selectorRoot }}', 
     script: '{{ url_for('dirlist') }}',
@@ -214,6 +222,70 @@ $.getJSON('{{ url_for('jobJSON', jobID=copyJob) }}', function(data) {
     function(file) {
       $('#Input').val(file);
   });
+});
+
+$('#mainFeature').change(function () {
+  if($(this).is(":checked")) {
+     $('#Title').attr("disabled", "disabled");
+     $('#Title').val('--main-feature');
+  } else {
+     $('#Title').removeAttr("disabled");
+     $('#Title').val('');
+  }
+});
+
+function fill_expandedx264() {
+  $('#expandedx264').empty();
+  $.each($('#x264opts').val().split(':'), function(key, value) {
+    $('#expandedx264').append("<div><input class='x264opt' value='" + value.split('=')[0] + "'/>=<input class='x264opt' value='" + value.split('=')[1] + "'/> <a href='#' class='x264del'>x</a> <br/></div>");
+  });
+  $('#expandedx264').append("<a class='addx264opt' href='#'>Add New</a>");
+  $('.x264del').click(function () {
+    $(this).closest('div').hide('fast', function() {
+      $(this).closest('div').remove();
+    });
+    return false;
+  });
+  $('.addx264opt').click(function () {
+    $(this).before("<div><input class='x264opt' value=''/>=<input class='x264opt' value=''/> <a href='#' class='x264del'>x</a> <br/></div>");
+    return false;
+  });
+}
+
+function reduce_expandedx264() {
+  x264str = '';
+  $.each($('#expandedx264').find('div'), function(index, elem) {
+    key = $($(elem).find('input.x264opt')[0]).val();
+    value = $($(elem).find('input.x264opt')[1]).val();
+    if (key != '' && value != '')
+      x264str += key + '=' + value + ':';
+  });
+  x264str = x264str.substring(0, x264str.length -1);
+  $('#x264opts').val(x264str);
+}
+
+$('#file_selector').hide();
+$('#show_selector').click(function() { 
+  $('#file_selector').toggle();
+  if ($(this).text() == "Browse") {
+    $(this).text("Done");
+  } else {
+    $(this).text("Browse");
+  }
+});
+$('#expandx264').click(function() {
+  if (!$('#expandedx264').is(":visible")) {
+    fill_expandedx264();
+    $('#x264opts').hide();
+    $('#expandedx264').show();
+    $('#expandx264').text('(-)');
+  } else {
+    reduce_expandedx264();
+    $('#x264opts').show();
+    $('#expandedx264').hide();
+    $('#expandx264').text('(+)');
+  }
+  return false;
 });
 </script>
 {% endblock %}
