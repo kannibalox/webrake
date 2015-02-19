@@ -79,7 +79,7 @@ class HandBrakeOptions:
             ['--x264-preset', self.x264Preset],
             ['--x264-tune', self.x264Tune],
             ['-x', self.x264opts],
-            ['--display-width', self.DisplayWidth]
+            ['--display-width', self.DisplayWidth]]
         for opt in basicOptList:
             if opt[1]:
                 if len(opt) == 2:
