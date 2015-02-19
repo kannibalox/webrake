@@ -1,14 +1,16 @@
+import os
+import re
+import json
+import glob
+import urllib2
+from time import sleep
+
 from flask import Flask, render_template, flash, Response, request, redirect, url_for, jsonify, Markup, send_from_directory
+
 import Globals
 import Config
 import Jobs
 import HandBrakeCLI
-
-from time import sleep
-import json
-import glob
-import os
-import urllib2
 
 app = Flask(__name__)
 
@@ -96,10 +98,22 @@ def launch():
     for key, value in arguments.items():
         setattr(hbo, key, value)
     if arguments['action'] == "Start Multiple Encodes":
-        print arguments['StepVar']
         for v in frange(float(arguments['StartIntv']), float(arguments['EndIntv']), float(arguments['StepIntv'])):
-            setattr(hbo, arguments['StepVar'], str(v))
-            Jobs.Manager.addJob(hbo)
+            if arguments['StepVar'] in ['Qaulity']:
+                setattr(hbo, arguments['StepVar'], str(v))
+                Jobs.Manager.addJob(hbo)
+            else:
+                x264opts = hbo.x264opts
+                if arguments['StepVar'] in hbo.x264opts:
+                    x = x264opts.split(':')
+                    for index, arg in enumerate(x):
+                        if arg.split('=')[0] == arguments['StepVar']:
+                            x[index] = arguments['StepVar'] + '=' + str(v)
+                    x264opts = ':'.join(x)
+                else:
+                    x264opts += ':' + arguments['StepVar'] + '=' + str(v)
+                setattr(hbo, "x264opts", x264opts)
+                Jobs.Manager.addJob(hbo)
     else:
         Jobs.Manager.addJob(hbo)
     return redirect(url_for('home'))
