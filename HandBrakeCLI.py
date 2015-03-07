@@ -95,9 +95,7 @@ class HandBrakeOptions:
                 retArray += [HandBrakeOptions.MAIN_FEATURE]
             else:
                 retArray += ['-t', self.Title]
-        if self.isPreview and not self.Duration:
-            retArray += ["--start-at", "duration:400", "--stop-at", "duration:30"]
-        elif self.Duration:
+        if self.Duration:
             retArray += ["--start-at", "duration:%s" % self.Duration[0], "--stop-at", "duration:%s" % self.Duration[1]]
         if self.Anamorphic:
             retArray += ['--%s-anamorphic' % self.Anamorphic.lower()]

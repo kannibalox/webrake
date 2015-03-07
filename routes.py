@@ -86,6 +86,7 @@ def launch():
 
     arguments = dict(request.form)
     # Iron out a few quirks
+    print arguments
     if not 'isPreview' in arguments:
         arguments['isPreview'] = [False]
     if arguments['Crop'] == [u'', u'', u'', u'']:

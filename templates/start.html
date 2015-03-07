@@ -213,6 +213,12 @@ $.getJSON('{{ url_for('jobJSON', jobID=copyJob) }}', function(data) {
     $('#StartDuration').val(data['args']['Duration'][0]);
     $('#EndDuration').val(data['args']['Duration'][1]);
   }
+  if ('isPreview' in data['args']) {
+    $('#StartDuration').attr("disabled", "disabled");
+    $('#StartDuration').val('duration:400');
+    $('#EndDuration').attr("disabled", "disabled");
+    $('#EndDuration').val('duration:30');
+  }    
   if ('Crop' in data['args']) {
     $('#CropTop').val(data['args']['Crop'][0]);
     $('#CropBottom').val(data['args']['Crop'][1]);
@@ -239,20 +245,34 @@ $('#mainFeature').change(function () {
   }
 });
 
+$('#isPreview').change(function () {
+  if($(this).is(":checked")) {
+    $('#StartDuration').attr("disabled", "disabled");
+    $('#StartDuration').val('duration:400');
+    $('#EndDuration').attr("disabled", "disabled");
+    $('#EndDuration').val('duration:30');
+  } else {
+    $('#StartDuration').removeAttr("disabled");
+    $('#StartDuration').val('');
+    $('#EndDuration').removeAttr("disabled");
+    $('#EndDuration').val('');
+  }
+});
+
 function fill_expandedx264() {
   $('#expandedx264').empty();
   $.each($('#x264opts').val().split(':'), function(key, value) {
     $('#expandedx264').append("<div><input class='x264opt' value='" + value.split('=')[0] + "'/>=<input class='x264opt' value='" + value.split('=')[1] + "'/> <a href='#' class='x264del'>x</a> <br/></div>");
   });
   $('#expandedx264').append("<a class='addx264opt' href='#'>Add New</a>");
-  $('.x264del').click(function () {
-    $(this).closest('div').hide('fast', function() {
-      $(this).closest('div').remove();
-    });
-    return false;
-  });
   $('.addx264opt').click(function () {
     $(this).before("<div><input class='x264opt' value=''/>=<input class='x264opt' value=''/> <a href='#' class='x264del'>x</a> <br/></div>");
+    $('.x264del').click(function () {
+      $(this).closest('div').hide('fast', function() {
+        $(this).closest('div').remove();
+      });
+      return false;
+    });
     return false;
   });
 }
