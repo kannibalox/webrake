@@ -31,7 +31,7 @@ class HandBrakeOptions:
         self.x264Tune = ""
         self.Anamorphic = ""
         self.DisplayWidth = ""
-        self.PixelAspect
+        self.PixelAspect = ""
 
     # Set up sane x264 encoding defaults
     def setDefaults(self):

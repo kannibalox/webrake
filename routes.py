@@ -91,7 +91,7 @@ def launch():
         arguments['isPreview'] = [False]
     if arguments['Crop'] == [u'', u'', u'', u'']:
         del(arguments['Crop'])
-    if arguments['Duration'] == [u'', u'']:
+    if 'Duration' in arguments and arguments['Duration'] == [u'', u'']:
         del(arguments['Duration'])
     for key in arguments.keys():
         if len(arguments[key]) == 1:
