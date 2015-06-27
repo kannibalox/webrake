@@ -209,7 +209,7 @@ $.getJSON('{{ url_for('jobJSON', jobID=copyJob) }}', function(data) {
   });
   if ('Title' in data['args']) {
     if (data['args']['Title'] == "--main-feature") {
-      $('#Title').attr("disabled", "disabled");
+      $('#Title').prop("readonly", true);
       $('#mainFeature').attr('checked', true);
     }
   }
@@ -218,9 +218,9 @@ $.getJSON('{{ url_for('jobJSON', jobID=copyJob) }}', function(data) {
     $('#EndDuration').val(data['args']['Duration'][1]);
   }
   if ('isPreview' in data['args']) {
-    $('#StartDuration').attr("disabled", "disabled");
+    $('#StartDuration').prop("readonly", true);
     $('#StartDuration').val('duration:400');
-    $('#EndDuration').attr("disabled", "disabled");
+    $('#EndDuration').prop("readonly", true);
     $('#EndDuration').val('duration:30');
   }    
   if ('Crop' in data['args']) {
@@ -241,24 +241,24 @@ $.getJSON('{{ url_for('jobJSON', jobID=copyJob) }}', function(data) {
 
 $('#mainFeature').change(function () {
   if($(this).is(":checked")) {
-     $('#Title').attr("disabled", "disabled");
+     $('#Title').prop("readonly", true);
      $('#Title').val('--main-feature');
   } else {
-     $('#Title').removeAttr("disabled");
+     $('#Title').prop("readonly", false);
      $('#Title').val('');
   }
 });
 
 $('#isPreview').change(function () {
   if($(this).is(":checked")) {
-    $('#StartDuration').attr("disabled", "disabled");
+    $('#StartDuration').prop("readonly", true);
     $('#StartDuration').val('duration:400');
-    $('#EndDuration').attr("disabled", "disabled");
+    $('#EndDuration').prop("readonly", true);
     $('#EndDuration').val('duration:30');
   } else {
-    $('#StartDuration').removeAttr("disabled");
+    $('#StartDuration').prop("readonly", false);
     $('#StartDuration').val('');
-    $('#EndDuration').removeAttr("disabled");
+    $('#EndDuration').prop("readonly", false);
     $('#EndDuration').val('');
   }
 });
