@@ -55,7 +55,8 @@ def new():
     if copy_id is None:
         copy_id = 0
     x264Presets = "ultrafast/superfast/veryfast/faster/fast/medium/slow/slower/veryslow/placebo".split('/') # I'm a lazy bastard
-    return render_template('start.html', copyJob=copy_id, presets=x264Presets, selectorRoot = Config.SelectorRoot)
+    x264Tunes = "film/animation/grain/stillimage/psnr/ssim/fastdecode/zerolatency".split('/')
+    return render_template('start.html', copyJob=copy_id, presets=x264Presets, tunes=x264Tunes, selectorRoot = Config.SelectorRoot)
 
 @app.route('/dirlist', methods=['POST'])
 def dirlist():
