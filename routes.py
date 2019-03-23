@@ -2,7 +2,7 @@ import os
 import re
 import json
 import glob
-import urllib2
+import urllib
 from time import sleep
 
 from flask import Flask, render_template, flash, Response, request, redirect, url_for, jsonify, Markup, send_from_directory
@@ -60,7 +60,7 @@ def new():
 
 @app.route('/dirlist', methods=['POST'])
 def dirlist():
-    dirreq = urllib2.unquote(dict(request.form)['dir'][0])
+    dirreq = urllib.parse.unquote(dict(request.form)['dir'][0])
     r=['<ul class="jqueryFileTree" style="display: none;">']
     try:
         if dirreq.find(Config.SelectorRoot, 0, len(Config.SelectorRoot)) == -1:
@@ -75,7 +75,7 @@ def dirlist():
                 e=os.path.splitext(f)[1][1:] # get .ext and remove dot
                 r.append('<li class="file ext_%s"><a href="#" rel="%s">%s</a></li>' % (e,ff,f))
         r.append('</ul>')
-    except Exception,e:
+    except Exception as e:
         r.append('Could not load directory: %s' % str(e))
     r.append('</ul>')
     return ''.join(r)
@@ -87,7 +87,7 @@ def launch():
 
     arguments = dict(request.form)
     # Iron out a few quirks
-    print arguments
+    print(arguments)
     if not 'isPreview' in arguments:
         arguments['isPreview'] = [False]
     if arguments['Crop'] == [u'', u'', u'', u'']:
@@ -125,7 +125,7 @@ def jobShow(jobID):
     jobInfo = Globals.db.query('SELECT * FROM job WHERE ID=(?)', (jobID,), True)
     job = {}
     job['args'] = json.loads(jobInfo['arguments'])
-    for argument in job['args'].keys():
+    for argument in list(job['args'].keys()):
         if job['args'][argument] is None or not job['args'][argument]:
             del job['args'][argument]
     job['id'] = jobID
@@ -137,7 +137,7 @@ def jobShow(jobID):
     logs = []
     for l in log_paths:
         with open(os.path.join(static_dir, l)) as log_file:
-            log_str = unicode(log_file.read().replace('\n', '<br/>'), errors='ignore')
+            log_str = log_file.read().replace('\n', '<br/>')
         logs.append({'path': l, 'text': log_str, 'name': os.path.basename(l), 'ID': os.path.basename(l).replace('.', '_')})
     Globals.Log.debug("Showing job %s (%s arguments, %s images, %s files, %s logs)" % (jobID, len(json.loads(jobInfo['arguments'])), len(images), len(output), len(logs)))
     return render_template('job.html', images=images, output=output, logs=logs, job=job)
@@ -192,7 +192,7 @@ def jobJSON(jobID):
         job['images'] = glob.glob(static_dir + '/*.png')
         job['output'] = glob.glob(static_dir + '/*.mkv')
         job['logs'] = glob.glob(static_dir + '/*.log')
-    for argument in job['args'].keys():
+    for argument in list(job['args'].keys()):
         if job['args'][argument] is None or not job['args'][argument]:
             del job['args'][argument]
     job['id'] = jobID

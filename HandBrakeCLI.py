@@ -45,7 +45,7 @@ class HandBrakeOptions:
         self.IncludeChapters = True
         self.isPreview = True
         self.x264opts = "aq-mode=2:ref=12:merange=32"
-        self.Anamorphic = "strict"
+        self.Anamorphic = "auto"
 
     def toJSON(self):
         return json.dumps(self.__dict__)
@@ -122,7 +122,7 @@ class HandBrakeCLI:
 def main():
     hb = HandBrakeCLI()
     hb.Options.setDefaults()
-    print hb.Options.toJSON()
+    print(hb.Options.toJSON())
     hb.Options.fromJSON(hb.Options.toJSON())
 
 if __name__ == '__main__': 

@@ -16,6 +16,7 @@ import fcntl
 import select
 import re
 import sys
+import traceback
 from time import sleep
 
 class Job:
@@ -72,7 +73,7 @@ class Job:
             self.setStatus('Finished: %02i:%02i:%02i' % (hours, minutes, seconds))
             self.jobLog.debug("Encoded file in %f seconds" % (seconds))
         except Exception as e:
-            print sys.exc_info()[0]
+            print(traceback.format_exc(sys.exc_info()))
             Globals.Log.debug("Job %d failed with message \"%s\"" % (self.id, e))
             self.setStatus('Failed:%s' % e)
         finally:
@@ -84,12 +85,12 @@ class Job:
 
     def prep(self):
         stderr = self.hb.scan()[1]
-        with open('scan.log', 'w') as f:
+        with open('scan.log', 'wb') as f:
             f.write(stderr)
-        r = re.compile('autocrop: (\d+)/(\d+)/(\d+)/(\d+)')
+        r = re.compile(b'autocrop: (\d+)/(\d+)/(\d+)/(\d+)')
         m = r.search(stderr)
         if m is not None:
-            autoCrop = [m.group(1), m.group(2), m.group(3), m.group(4)]
+            autoCrop = [m.group(1).decode(), m.group(2).decode(), m.group(3).decode(), m.group(4).decode()]
             self.jobLog.debug("Autocrop scan match: " + str(autoCrop))
             if not self.hb.Options.Crop:
                 self.hb.Options.Crop = autoCrop
@@ -106,13 +107,13 @@ class Job:
             if not outstd:
                 continue
             else:
-                chunk = sp.stdout.read()
+                chunk = sp.stdout.read().decode()
                 if chunk.find("ETA") > 0:
                     ETAnow = str(chunk[(chunk.find("ETA")+4):(chunk.find("ETA")+13)])
                     if not ETAnow == ETA:
                         ETA = ETAnow
                         self.setStatus('Encoding: ETA %s' % ETA)
-        with open('encode.log', 'w') as f:
+        with open('encode.log', 'wb') as f:
             for line in sp.stderr:
                 f.write(line)
 
@@ -149,7 +150,7 @@ class JobManager:
 
     def finalizeJob(self, jobID):
         jInput = json.loads(Globals.db.query("SELECT arguments FROM job WHERE id = (?)", (jobID,), True)['arguments'])['Input']
-        print jInput
+        print(jInput)
         cur = Globals.db.query("SELECT ID, arguments FROM job WHERE id < (?)", (jobID,))
         for row in cur:
             if json.loads(Globals.db.query("SELECT arguments FROM job WHERE id = (?)", (row['id'],), True)['arguments'])['Input'] == jInput:
