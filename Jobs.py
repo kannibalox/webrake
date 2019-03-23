@@ -118,7 +118,7 @@ class Job:
                 f.write(line)
 
     def finish(self):
-        S = Screenshots.Screenshots(self.id, self.workDirectory)
+        S = Screenshots.MpvScreenshots(self.id, self.workDirectory)
         S.takeAllPreviewScreenshots()
 
 class JobManager:

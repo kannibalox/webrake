@@ -1,7 +1,8 @@
 Dependencies
 ============
+* Python 3
 * HandbrakeCLI
-* mplayer
+* mpv
 * python
   * flask
 
